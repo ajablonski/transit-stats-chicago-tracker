@@ -1,8 +1,9 @@
 package controllers
 
-import javax.inject._
-import play.api._
+import com.github.ajablonski.shared.SharedMessages
 import play.api.mvc._
+
+import javax.inject._
 
 /**
  * This controller creates an `Action` to handle HTTP requests to the
@@ -19,6 +20,6 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents) e
    * a path of `/`.
    */
   def index() = Action { implicit request: Request[AnyContent] =>
-    Ok(views.html.index())
+    Ok(views.html.index(SharedMessages.itWorks))
   }
 }
