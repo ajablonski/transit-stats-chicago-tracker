@@ -1,7 +1,7 @@
 package controllers
 
 import model.Bus
-import play.api.libs.json.{JsError, JsSuccess, Json}
+import play.api.libs.json.{JsError, JsSuccess, Json, OFormat}
 import play.api.mvc._
 import services.BusTrackerClient
 
@@ -10,9 +10,9 @@ import scala.concurrent.ExecutionContext
 
 @Singleton
 class BusController @Inject()(val controllerComponents: ControllerComponents, busTrackerClient: BusTrackerClient, implicit private val ec: ExecutionContext) extends BaseController {
-  implicit private val busJson = Json.format[Bus]
+  implicit private val busJson: OFormat[Bus] = Json.format[Bus]
 
-  def get(routeId: Long): Action[AnyContent] = Action.async { implicit request: Request[AnyContent] =>
+  def get(routeId: String): Action[AnyContent] = Action.async { implicit request: Request[AnyContent] =>
     busTrackerClient
       .getVehicles(routeId)
       .map {

@@ -25,12 +25,12 @@ class BusTrackerClient @Inject()(ws: WSClient, implicit private val ec: Executio
   private val baseUrl = config.get[String]("app.ctaBusApi.baseUrl")
   private val apiKey = config.get[String]("app.ctaBusApi.key")
 
-  def getVehicles(routeId: Long): Future[JsResult[List[Bus]]] = {
+  def getVehicles(routeId: String): Future[JsResult[List[Bus]]] = {
     ws.url(s"$baseUrl/$vehiclesEndpoint")
       .addQueryStringParameters(
         ("key", apiKey),
         ("tmres", "s"),
-        ("rt", routeId.toString),
+        ("rt", routeId),
         ("format", "json")
       )
       .get()

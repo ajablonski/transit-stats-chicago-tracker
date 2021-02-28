@@ -5,6 +5,7 @@ import org.scalatest.TestData
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneAppPerTest
 import play.api.Application
+import play.api.http.{ContentTypeOf, ContentTypes}
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.{JsArray, JsSuccess}
 import play.api.routing.sird._
@@ -52,14 +53,14 @@ class BusTrackerClientSpec extends PlaySpec with GuiceOneAppPerTest {
                 |            }
                 |        ]
                 |    }
-                |}""".stripMargin).withHeaders(("Content-Type", "application/json;charset=utf-8"))
+                |}""".stripMargin).as(ContentTypes.JSON)
           }
         }
       } { implicit port =>
         WsTestClient.withClient {
           client =>
             val busTrackerClient = new BusTrackerClient(client, ExecutionContext.global, app.configuration)
-            val result = Await.result(busTrackerClient.getVehicles(76), 1.minute)
+            val result = Await.result(busTrackerClient.getVehicles("76"), 1.minute)
             result mustEqual JsSuccess(List(Bus(destination = "Nature Museum",
               tripId = "372",
               blockId = "76 -405",
