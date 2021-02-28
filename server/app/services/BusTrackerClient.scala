@@ -1,7 +1,7 @@
 package services
 
 import helpers.Helpers
-import model.Bus
+import com.github.ajablonski.shared.model.Bus
 import play.api.Configuration
 import play.api.libs.functional.syntax._
 import play.api.libs.json._
@@ -19,8 +19,8 @@ class BusTrackerClient @Inject()(ws: WSClient, implicit private val ec: Executio
       (JsPath \ "tablockid").read[String] and
       (JsPath \ "tmstmp").read[String].map(Helpers.convertCtaDate) and
       (JsPath \ "vid").read[String].map(_.toLong) and
-      (JsPath \ "lat").read[BigDecimal] and
-      (JsPath \ "lon").read[BigDecimal]
+      (JsPath \ "lat").read[String].map(_.toDouble) and
+      (JsPath \ "lon").read[String].map(_.toDouble)
     ) (Bus.apply _)
   private val baseUrl = config.get[String]("app.ctaBusApi.baseUrl")
   private val apiKey = config.get[String]("app.ctaBusApi.key")

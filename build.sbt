@@ -27,7 +27,9 @@ lazy val client = (project in file("client"))
   .settings(
     scalaJSUseMainModuleInitializer := true,
     libraryDependencies ++= Seq(
-      "org.scala-js" %%% "scalajs-dom" % "1.1.0"
+      "org.scala-js" %%% "scalajs-dom" % "1.1.0",
+      "com.lihaoyi" %%% "upickle" % "1.2.3",
+      "io.github.cquiroz" %%% "scala-java-time" % "2.2.0"
     ),
     npmDependencies in Compile ++= Seq(
       "leaflet" -> "1.7.1"

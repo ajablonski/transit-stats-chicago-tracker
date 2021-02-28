@@ -1,6 +1,6 @@
 package controllers
 
-import model.Bus
+import com.github.ajablonski.shared.model.Bus
 import play.api.libs.json.{JsError, JsSuccess, Json, OFormat}
 import play.api.mvc._
 import services.BusTrackerClient

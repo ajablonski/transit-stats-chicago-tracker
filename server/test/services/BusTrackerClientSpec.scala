@@ -1,6 +1,6 @@
 package services
 
-import model.Bus
+import com.github.ajablonski.shared.model.Bus
 import org.scalatest.TestData
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneAppPerTest
@@ -66,8 +66,8 @@ class BusTrackerClientSpec extends PlaySpec with GuiceOneAppPerTest {
               blockId = "76 -405",
               timestamp = LocalDateTime.parse("2021-02-27T15:42:55"),
               vehicleId = 8286,
-              latitude = BigDecimal("41.93092727661133"),
-              longitude = BigDecimal("-87.79379762922015"))))
+              latitude = 41.93092727661133,
+              longitude = -87.79379762922015)))
         }
       }
     }

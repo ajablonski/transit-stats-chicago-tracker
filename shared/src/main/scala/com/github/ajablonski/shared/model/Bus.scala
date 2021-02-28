@@ -1,4 +1,4 @@
-package model
+package com.github.ajablonski.shared.model
 
 import java.time.LocalDateTime
 
@@ -7,5 +7,5 @@ case class Bus(destination: String,
                blockId: String,
                timestamp: LocalDateTime,
                vehicleId: Long,
-               latitude: BigDecimal,
-               longitude: BigDecimal) {}
+               latitude: Double,
+               longitude: Double) {}
