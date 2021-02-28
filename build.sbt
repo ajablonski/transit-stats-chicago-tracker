@@ -17,7 +17,7 @@ lazy val server = (project in file("server"))
       "org.scalatestplus.play" %% "scalatestplus-play" % "5.0.0" % Test
     )
   )
-  .enablePlugins(PlayScala)
+  .enablePlugins(PlayScala, WebScalaJSBundlerPlugin)
   .dependsOn(sharedJvm)
 
 scalaVersion := "2.13.3"
@@ -28,9 +28,12 @@ lazy val client = (project in file("client"))
     scalaJSUseMainModuleInitializer := true,
     libraryDependencies ++= Seq(
       "org.scala-js" %%% "scalajs-dom" % "1.1.0"
+    ),
+    npmDependencies in Compile ++= Seq(
+      "leaflet" -> "1.7.1"
     )
   )
-  .enablePlugins(ScalaJSPlugin, ScalaJSWeb)
+  .enablePlugins(ScalaJSBundlerPlugin)
   .dependsOn(sharedJs)
 
 

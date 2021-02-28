@@ -8,5 +8,4 @@ GET        /                       controllers.HomeController.index()
 GET        /routes/:routeId        controllers.BusController.get(routeId: String)
 
 # Map static resources from the /public folder to the /assets URL path
-GET        /assets/*file                 controllers.Assets.at(file)
-GET        /versionedAssets/*file        controllers.Assets.versioned(path="/public", file: Asset)
+GET        /assets/*file                 controllers.Assets.versioned(path="/public", file: Asset)
