@@ -15,7 +15,8 @@ lazy val server = (project in file("server"))
       guice,
       ws,
       specs2 % Test,
-      "org.scalatestplus.play" %% "scalatestplus-play" % "5.0.0" % Test
+      "org.scalatestplus.play" %% "scalatestplus-play" % "5.1.0" % Test,
+      "org.scalatestplus" %% "mockito-3-4" % "3.2.5.0" % Test
     )
   )
   .enablePlugins(PlayScala, WebScalaJSBundlerPlugin)

@@ -3,7 +3,7 @@ package controllers
 import com.github.ajablonski.shared.model.Bus
 import org.mockito.Mockito.when
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatestplus.mockito.MockitoSugar.mock
+import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneAppPerTest
 import play.api.http.Status.OK
@@ -15,7 +15,7 @@ import services.BusTrackerClient
 import java.time.LocalDateTime
 import scala.concurrent.{ExecutionContext, Future}
 
-class BusControllerSpec extends PlaySpec with GuiceOneAppPerTest with Injecting with ScalaFutures {
+class BusControllerSpec extends PlaySpec with GuiceOneAppPerTest with Injecting with ScalaFutures with MockitoSugar {
   implicit private val busJson = Json.format[Bus]
 
   "RouteController GET" should {
