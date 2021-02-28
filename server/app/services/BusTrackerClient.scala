@@ -1,0 +1,42 @@
+package services
+
+import helpers.Helpers
+import model.Bus
+import play.api.Configuration
+import play.api.libs.functional.syntax._
+import play.api.libs.json._
+import play.api.libs.ws.WSClient
+
+import javax.inject.{Inject, Singleton}
+import scala.concurrent.{ExecutionContext, Future}
+
+@Singleton
+class BusTrackerClient @Inject()(ws: WSClient, implicit private val ec: ExecutionContext, config: Configuration) {
+  private val vehiclesEndpoint = "getvehicles"
+  private implicit val busReads: Reads[Bus] = (
+    (JsPath \ "des").read[String] and
+      (JsPath \ "tatripid").read[String] and
+      (JsPath \ "tablockid").read[String] and
+      (JsPath \ "tmstmp").read[String].map(Helpers.convertCtaDate) and
+      (JsPath \ "vid").read[String].map(_.toLong) and
+      (JsPath \ "lat").read[BigDecimal] and
+      (JsPath \ "lon").read[BigDecimal]
+    ) (Bus.apply _)
+  private val baseUrl = config.get[String]("app.ctaBusApi.baseUrl")
+  private val apiKey = config.get[String]("app.ctaBusApi.key")
+
+  def getVehicles(routeId: Long): Future[JsResult[List[Bus]]] = {
+    ws.url(s"$baseUrl/$vehiclesEndpoint")
+      .addQueryStringParameters(
+        ("key", apiKey),
+        ("tmres", "s"),
+        ("rt", routeId.toString),
+        ("format", "json")
+      )
+      .get()
+      .map { response =>
+        (response.json \ "bustime-response" \ "vehicle")
+          .validate[List[Bus]]
+      }
+  }
+}

@@ -1,7 +1,10 @@
 package controllers
 
+import org.scalatest.TestData
 import org.scalatestplus.play._
 import org.scalatestplus.play.guice._
+import play.api.Application
+import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test._
 import play.api.test.Helpers._
 
@@ -12,6 +15,11 @@ import play.api.test.Helpers._
  * For more information, see https://www.playframework.com/documentation/latest/ScalaTestingWithScalaTest
  */
 class HomeControllerSpec extends PlaySpec with GuiceOneAppPerTest with Injecting {
+
+  implicit override def newAppForTest(testData: TestData): Application =
+    new GuiceApplicationBuilder()
+      .configure(Map("app.ctaBusApi.key" -> "fakekey"))
+      .build()
 
   "HomeController GET" should {
 

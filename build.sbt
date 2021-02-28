@@ -12,6 +12,7 @@ lazy val server = (project in file("server"))
     libraryDependencies ++= Seq(
       "com.vmunier" %% "scalajs-scripts" % "1.1.4",
       guice,
+      ws,
       specs2 % Test,
       "org.scalatestplus.play" %% "scalatestplus-play" % "5.0.0" % Test
     )
