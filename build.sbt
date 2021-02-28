@@ -1,5 +1,6 @@
 name := """ct-delay"""
 version := "1.0-SNAPSHOT"
+ThisBuild / scalaVersion := "2.13.5"
 
 lazy val server = (project in file("server"))
   .settings(commonSettings)
@@ -19,8 +20,6 @@ lazy val server = (project in file("server"))
   )
   .enablePlugins(PlayScala, WebScalaJSBundlerPlugin)
   .dependsOn(sharedJvm)
-
-scalaVersion := "2.13.3"
 
 lazy val client = (project in file("client"))
   .settings(commonSettings)
@@ -48,7 +47,6 @@ lazy val sharedJvm = shared.jvm
 lazy val sharedJs = shared.js
 
 lazy val commonSettings = Seq(
-  scalaVersion := "2.13.3",
   organization := "com.github.ajablonski"
 )
 
