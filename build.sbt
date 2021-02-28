@@ -31,6 +31,8 @@ lazy val client = (project in file("client"))
       "com.lihaoyi" %%% "upickle" % "1.2.3",
       "io.github.cquiroz" %%% "scala-java-time" % "2.2.0"
     ),
+    webpackConfigFile in fastOptJS := Some(baseDirectory.value / "webpack" / "dev.webpack.config.js"),
+    webpackEmitSourceMaps := false,
     npmDependencies in Compile ++= Seq(
       "leaflet" -> "1.7.1"
     )
