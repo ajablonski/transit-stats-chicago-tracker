@@ -37,6 +37,8 @@ object ScalaJSExample {
       "ext" -> "png"
     )).addTo(mymap)
 
+    val markerGroup = Leaflet.featureGroup()
+
     val busIcon = Leaflet.icon(js.Dictionary(
       "iconUrl" -> "assets/images/bus.png",
       "iconSize" -> js.Array(18, 18),
@@ -49,10 +51,12 @@ object ScalaJSExample {
         xhr =>
           read[Seq[Bus]](xhr.responseText, trace = true)
             .foreach { bus =>
-              Leaflet
+              val marker = Leaflet
                 .marker(js.Array(bus.latitude, bus.longitude), js.Dictionary("icon" -> busIcon))
-                .addTo(mymap)
+              marker.addTo(mymap)
+              markerGroup.addLayer(marker)
             }
+          mymap.fitBounds(markerGroup.getBounds())
       }
   }
 }
