@@ -22,6 +22,8 @@ object Leaflet extends js.Object {
 @js.native
 class Map extends js.Object {
   def fitBounds(bounds: LatLngBounds): Map = js.native
+
+  def eachLayer(layerFunction: js.Function1[Layer, Unit]): Map = js.native
 }
 
 @JSImport("leaflet", "TileLayer")
@@ -32,13 +34,16 @@ class TileLayer extends js.Object {
 
 @JSImport("leaflet", "Layer")
 @js.native
-class Layer extends js.Object {}
+class Layer extends js.Object {
+  def remove(): Layer = js.native
+
+  def addTo(map: Map): Layer = js.native
+
+}
 
 @JSImport("leaflet", "Marker")
 @js.native
-class Marker extends Layer {
-  def addTo(map: Map): Marker = js.native
-}
+class Marker extends Layer {}
 
 @JSImport("leaflet", "Icon")
 @js.native
@@ -46,10 +51,11 @@ class Icon extends js.Object {}
 
 @JSImport("leaflet", "featureGroup")
 @js.native
-class FeatureGroup extends js.Object {
+class FeatureGroup extends Layer {
   def addLayer(layer: Layer): FeatureGroup = js.native
 
   def getBounds(): LatLngBounds = js.native
+
 }
 
 @JSImport("leaflet", "LatLngBounds")
