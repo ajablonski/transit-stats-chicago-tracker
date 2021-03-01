@@ -56,7 +56,11 @@ class LeafletMapManager(routeStream: Signal[String]) {
     ))
 
     Leaflet.tileLayer("https://stamen-tiles-{s}.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}{r}.{ext}", js.Dictionary(
-      "attribution" -> """Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors""",
+      "attribution" ->
+        """Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>
+          |&mdash; Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors
+          |&mdash; Welsh Corgi by Loren Holloway from the Noun Project
+          |&mdash; <a href="https://iconscout.com/icons/chicken" target="_blank">Chicken Icon</a> on <a href="https://iconscout.com">Iconscout</a>""".stripMargin,
       "minZoom" -> 0,
       "maxZoom" -> 20,
       "ext" -> "png"
