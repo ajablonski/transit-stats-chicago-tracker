@@ -1,5 +1,6 @@
 package controllers
 
+import clients.BusTrackerClient
 import com.github.ajablonski.shared.model.Bus
 import org.mockito.Mockito.when
 import org.scalatest.concurrent.ScalaFutures
@@ -10,7 +11,6 @@ import play.api.http.Status.OK
 import play.api.libs.json.{JsArray, JsSuccess, Json}
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Injecting}
-import services.BusTrackerClient
 
 import java.time.LocalDateTime
 import scala.concurrent.{ExecutionContext, Future}
@@ -18,7 +18,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class BusControllerSpec extends PlaySpec with GuiceOneAppPerTest with Injecting with ScalaFutures with MockitoSugar {
   implicit private val busJson = Json.format[Bus]
 
-  "RouteController GET" should {
+  "BusController GET" should {
     "return a list of all buses on route right now" in {
       val request = FakeRequest("GET", "/routes/76")
       val mockBusTrackerClient = mock[BusTrackerClient]

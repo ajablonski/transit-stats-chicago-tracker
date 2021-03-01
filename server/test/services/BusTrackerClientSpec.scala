@@ -1,14 +1,13 @@
 package services
 
+import clients.BusTrackerClient
 import com.github.ajablonski.shared.model.Bus
 import org.scalatest.TestData
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneAppPerTest
 import play.api.Application
-import play.api.http.{ContentTypeOf, ContentTypes}
 import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.libs.json.{JsArray, JsSuccess}
-import play.api.routing.sird._
+import play.api.libs.json.JsSuccess
 import play.api.test.WsTestClient
 import play.core.server.Server
 
@@ -17,46 +16,16 @@ import scala.concurrent.duration._
 import scala.concurrent.{Await, ExecutionContext}
 
 class BusTrackerClientSpec extends PlaySpec with GuiceOneAppPerTest {
-  implicit override def newAppForTest(testData: TestData): Application =
+  override def newAppForTest(testData: TestData): Application =
     new GuiceApplicationBuilder()
-      .configure(Map("app.ctaBusApi.key" -> "fakekey",
-      "app.ctaBusApi.baseUrl" -> ""))
+      .configure("app.ctaBusApi.key" -> "fakekey",
+        "app.ctaBusApi.baseUrl" -> "")
       .build()
 
 
   "BusTrackerClient" should {
     "correctly parse getVehicles response" in {
-      Server.withRouterFromComponents() { components =>
-        import components.{defaultActionBuilder => Action}
-        import play.api.mvc.Results._
-        {
-          case GET(p"/getvehicles") => Action {
-            Ok(
-              """
-                |{
-                |    "bustime-response": {
-                |        "vehicle": [
-                |            {
-                |                "des": "Nature Museum",
-                |                "dly": false,
-                |                "hdg": "92",
-                |                "lat": "41.93092727661133",
-                |                "lon": "-87.79379762922015",
-                |                "pdist": 3338,
-                |                "pid": 4619,
-                |                "rt": "76",
-                |                "tablockid": "76 -405",
-                |                "tatripid": "372",
-                |                "tmstmp": "20210227 15:42:55",
-                |                "vid": "8286",
-                |                "zone": ""
-                |            }
-                |        ]
-                |    }
-                |}""".stripMargin).as(ContentTypes.JSON)
-          }
-        }
-      } { implicit port =>
+      Server.withRouterFromComponents()(TestHelpers.mockCta) { implicit port =>
         WsTestClient.withClient {
           client =>
             val busTrackerClient = new BusTrackerClient(client, ExecutionContext.global, app.configuration)

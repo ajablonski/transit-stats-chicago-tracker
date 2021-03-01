@@ -1,7 +1,7 @@
-package services
+package clients
 
-import helpers.Helpers
 import com.github.ajablonski.shared.model.Bus
+import helpers.Helpers
 import play.api.Configuration
 import play.api.libs.functional.syntax._
 import play.api.libs.json._

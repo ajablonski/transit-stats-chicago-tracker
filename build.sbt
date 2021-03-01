@@ -15,6 +15,8 @@ lazy val server = (project in file("server"))
       guice,
       ws,
       specs2 % Test,
+      "net.lingala.zip4j" % "zip4j" % "2.7.0",
+      "com.github.tototoshi" %% "scala-csv" % "1.3.7",
       "org.scalatestplus.play" %% "scalatestplus-play" % "5.1.0" % Test,
       "org.scalatestplus" %% "mockito-3-4" % "3.2.5.0" % Test
     )
@@ -50,6 +52,7 @@ lazy val sharedJvm = shared.jvm
 lazy val sharedJs = shared.js
 
 lazy val commonSettings = Seq(
-  organization := "com.github.ajablonski"
+  organization := "com.github.ajablonski",
+  scalacOptions += "-feature"
 )
 

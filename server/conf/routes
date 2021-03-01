@@ -5,6 +5,7 @@
 
 # An example controller showing a sample home page
 GET        /                       controllers.HomeController.index()
+GET        /routes                 controllers.RouteController.getAll()
 GET        /routes/:routeId        controllers.BusController.get(routeId: String)
 
 # Map static resources from the /public folder to the /assets URL path
