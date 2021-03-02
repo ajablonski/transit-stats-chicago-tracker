@@ -1,4 +1,4 @@
-package serialization
+package com.github.ajablonski.shared.serialization
 
 import com.github.ajablonski.shared.model.{BusRouteType, Route, RouteType, TrainRouteType}
 import play.api.libs.json.{JsError, JsObject, JsSuccess, Json, OFormat, OWrites, Reads}

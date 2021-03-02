@@ -10,7 +10,7 @@ import play.api.libs.json.OFormat
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{stubControllerComponents, _}
 import play.core.server.Server
-import serialization.RouteSerializers
+import com.github.ajablonski.shared.serialization.RouteSerializers
 
 import scala.concurrent.Future
 

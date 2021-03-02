@@ -2,27 +2,24 @@ package com.github.ajablonski
 
 import com.github.ajablonski.shared.SharedMessages
 import com.github.ajablonski.shared.model._
+import com.github.ajablonski.shared.serialization.RouteSerializers
 import org.scalajs.dom
 import org.scalajs.dom.ext.Ajax
 import org.scalajs.dom.raw.Event
-import upickle.default._
+import play.api.libs.json._
+
 
 import java.time.LocalDateTime
 import scala.scalajs.js
 
 
 object Main {
-  implicit val busRw: Reader[Bus] = macroR[Bus]
-  implicit val timeRw: Reader[LocalDateTime] = reader[ujson.Value].map(
-    it => LocalDateTime.parse(it.str)
-  )
-  implicit val routeRw: Reader[Route] = macroR[Route]
-  implicit val routeTypeReader: Reader[RouteType] = reader[ujson.Value].map(
-    _.obj.get("_type") match {
-      case Some(ujson.Str("com.github.ajablonski.shared.model.BusRouteType")) => BusRouteType
-      case Some(ujson.Str("com.github.ajablonski.shared.model.TrainRouteType")) => TrainRouteType
-    }
-  )
+  implicit val routeReads = RouteSerializers.routeFormat
+  implicit val localDateTimeReads = Reads[LocalDateTime] {
+    case JsString(value) => JsSuccess(LocalDateTime.parse(value))
+    case _ => JsError("String expected")
+  }
+  implicit val busReads = Json.reads[Bus]
 
   private val busIcon = Leaflet.icon(js.Dictionary(
     "iconUrl" -> "assets/images/bus.png",
@@ -56,16 +53,18 @@ object Main {
     Ajax
       .get("/routes")
       .foreach(xhr => {
-        read[Seq[Route]](xhr.responseText, trace = true)
-          .foreach { route =>
-            val option = dom.document.createElement("option").asInstanceOf[dom.html.Option]
-            option.label = f"${route.routeId}: ${route.name}"
-            option.innerText = f"${route.routeId}: ${route.name}"
-            option.value = route.routeId
 
-            routesSelect.appendChild(option)
+        Json.parse(xhr.responseText)
+          .as[List[Route]]
+          .foreach {
+            route =>
+              val option = dom.document.createElement("option").asInstanceOf[dom.html.Option]
+              option.label = f"${route.routeId}: ${route.name}"
+              option.innerText = f"${route.routeId}: ${route.name}"
+              option.value = route.routeId
+
+              routesSelect.appendChild(option)
           }
-
         routesSelect.value = defaultRoute
       })
   }
@@ -96,12 +95,14 @@ object Main {
       .get(f"/routes/$route")
       .foreach {
         xhr =>
-          read[Seq[Bus]](xhr.responseText, trace = true)
+          Json.parse(xhr.responseText)
+            .as[List[Bus]]
             .foreach { bus =>
               val marker = Leaflet
                 .marker(js.Array(bus.latitude, bus.longitude), js.Dictionary("icon" -> busIcon))
               markerGroup.addLayer(marker)
             }
+
           markerGroup.addTo(map)
           map.fitBounds(markerGroup.getBounds())
       }

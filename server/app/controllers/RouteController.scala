@@ -4,7 +4,7 @@ import clients.GtfsClient
 import com.github.ajablonski.shared.model.Route
 import play.api.libs.json.{Json, OFormat}
 import play.api.mvc._
-import serialization.RouteSerializers
+import com.github.ajablonski.shared.serialization.RouteSerializers
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext

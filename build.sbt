@@ -47,6 +47,11 @@ lazy val shared = crossProject(JSPlatform, JVMPlatform)
   .crossType(CrossType.Pure)
   .in(file("shared"))
   .settings(commonSettings)
+  .settings(
+    libraryDependencies ++= Seq(
+      "com.typesafe.play" %%% "play-json" % "2.9.2"
+    )
+  )
   .jsConfigure(_.enablePlugins(ScalaJSBundlerPlugin))
 lazy val sharedJvm = shared.jvm
 lazy val sharedJs = shared.js
