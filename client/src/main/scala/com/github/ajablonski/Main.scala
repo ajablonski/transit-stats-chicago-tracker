@@ -60,6 +60,7 @@ object Main {
           .foreach { route =>
             val option = dom.document.createElement("option").asInstanceOf[dom.html.Option]
             option.label = f"${route.routeId}: ${route.name}"
+            option.innerText = f"${route.routeId}: ${route.name}"
             option.value = route.routeId
 
             routesSelect.appendChild(option)
