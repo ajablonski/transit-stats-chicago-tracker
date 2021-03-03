@@ -6,3 +6,8 @@ addSbtPlugin("com.vmunier" % "sbt-web-scalajs" % "1.1.0")
 addSbtPlugin("org.portable-scala" % "sbt-scalajs-crossproject" % "1.0.0")
 addSbtPlugin("org.scala-js" % "sbt-scalajs" % "1.5.0")
 addSbtPlugin("com.timushev.sbt" % "sbt-updates" % "0.5.1")
+
+libraryDependencies ++= Seq(
+  "com.typesafe.play" %% "play-json" % "2.9.2",
+  "org.scala-js" %% "scalajs-linker-interface" % "1.5.0"
+)

@@ -1,3 +1,5 @@
+import sbt.TaskKey
+
 name := """ct-delay"""
 version := "1.0-SNAPSHOT"
 ThisBuild / scalaVersion := "2.13.5"
@@ -24,6 +26,8 @@ lazy val server = (project in file("server"))
   .enablePlugins(PlayScala, WebScalaJSBundlerPlugin)
   .dependsOn(sharedJvm)
 
+val sourceMapCleanup = TaskKey[Unit]("sourceMapCleanUp", "Fix up source map to exclude relative library paths")
+
 lazy val client = (project in file("client"))
   .settings(commonSettings)
   .settings(
@@ -34,10 +38,16 @@ lazy val client = (project in file("client"))
       "io.github.cquiroz" %%% "scala-java-time" % "2.2.0"
     ),
     webpackConfigFile in fastOptJS := Some(baseDirectory.value / "webpack" / "dev.webpack.config.js"),
-    webpackEmitSourceMaps := false,
     npmDependencies in Compile ++= Seq(
       "leaflet" -> "1.7.1"
-    )
+    ),
+    (Compile / fastOptJS / webpack) := (Compile / fastOptJS / webpack).dependsOn(sourceMapCleanup).value,
+    version in webpack := "4.46.0",
+    sourceMapCleanup := {
+      println((Compile / fastOptJS / fastLinkJS).value)
+
+      SourceMapCleanup.cleanup((Compile / fastLinkJS / scalaJSLinkerOutputDirectory).value, (Compile / fastOptJS / fastLinkJS).value)
+    }
   )
   .enablePlugins(ScalaJSBundlerPlugin)
   .dependsOn(sharedJs)
