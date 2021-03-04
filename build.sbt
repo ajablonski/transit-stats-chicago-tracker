@@ -41,12 +41,16 @@ lazy val client = (project in file("client"))
     npmDependencies in Compile ++= Seq(
       "leaflet" -> "1.7.1"
     ),
+    npmDevDependencies in Compile ++= Seq(
+      "scalajs-friendly-source-map-loader" -> "0.1.5"
+    ),
     (Compile / fastOptJS / webpack) := (Compile / fastOptJS / webpack).dependsOn(sourceMapCleanup).value,
     version in webpack := "4.46.0",
     sourceMapCleanup := {
-      println((Compile / fastOptJS / fastLinkJS).value)
-
-      SourceMapCleanup.cleanup((Compile / fastLinkJS / scalaJSLinkerOutputDirectory).value, (Compile / fastOptJS / fastLinkJS).value)
+      SourceMapCleanup.cleanup(
+        (Compile / fastLinkJS / scalaJSLinkerOutputDirectory).value,
+        (Compile / fastOptJS / fastLinkJS).value
+      )
     }
   )
   .enablePlugins(ScalaJSBundlerPlugin)

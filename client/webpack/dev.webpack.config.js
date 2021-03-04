@@ -1,4 +1,9 @@
 module.exports = require('./scalajs.webpack.config');
 
-Object.assign(module.exports, {
-});
+module.exports.module.rules = [
+    {
+        test: /\.js$/,
+        enforce: "pre",
+        use: ["scalajs-friendly-source-map-loader"]
+    }
+]
