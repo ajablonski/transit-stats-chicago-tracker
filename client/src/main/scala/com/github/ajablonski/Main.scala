@@ -22,11 +22,7 @@ object Main {
   }
   implicit val busReads = Json.reads[Bus]
 
-  private val busIcon = Leaflet.icon(js.Dictionary(
-    "iconUrl" -> "assets/images/bus.png",
-    "iconSize" -> js.Array(18, 18),
-    "iconAnchor" -> js.Array(9, 9)
-  ))
+  private val busIcon = buildBus()
 
   val defaultRoute = "22"
 
@@ -115,12 +111,27 @@ object Main {
     markerGroup
   }
 
+  def buildBus(): Icon = {
+    val size = 30
+    val busSvg =
+      f"""
+         |<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="black" width="${size}px" height="${size}px">
+         |  <path d="M0 0h24v24H0z" fill="none"/>
+         |  <path d="M4 16c0 .88.39 1.67 1 2.22V20c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h8v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1.78c.61-.55 1-1.34 1-2.22V6c0-3.5-3.58-4-8-4s-8 .5-8 4v10zm3.5 1c-.83 0-1.5-.67-1.5-1.5S6.67 14 7.5 14s1.5.67 1.5 1.5S8.33 17 7.5 17zm9 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm1.5-6H6V6h12v5z"/>
+         |</svg>""".stripMargin
+    Leaflet.icon(js.Dictionary(
+      "iconUrl" -> f"data:image/svg+xml;base64,${Base64.getEncoder.encodeToString(busSvg.getBytes(StandardCharsets.UTF_8))}",
+      "iconSize" -> js.Array(size, size),
+      "iconAnchor" -> js.Array(size / 2, size / 2)
+    ))
+  }
+
   def buildArrow(rotation: Int): Icon = {
     val size = 60
     val arrowWidth = 8
     val arrowHeight = 12
     val arrowSvg =
-      f"""<svg xmlns="http://www.w3.org/2000/svg" xmlns:se="http://svg-edit.googlecode.com" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" width="$size" height="$size">
+      f"""<svg xmlns="http://www.w3.org/2000/svg" width="$size" height="$size">
          |  <g transform="rotate($rotation ${size / 2} ${size / 2})">
          |    <polyline stroke="#303f9f" fill="#303f9f" points="${size / 2 - arrowWidth / 2}, $arrowHeight
          |                                                      ${size / 2}, 0
