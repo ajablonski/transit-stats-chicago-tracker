@@ -8,4 +8,5 @@ case class Bus(destination: String,
                timestamp: LocalDateTime,
                vehicleId: Long,
                latitude: Double,
-               longitude: Double) {}
+               longitude: Double,
+               heading: Int) {}

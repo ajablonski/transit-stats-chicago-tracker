@@ -8,8 +8,9 @@ import org.scalajs.dom.ext.Ajax
 import org.scalajs.dom.raw.Event
 import play.api.libs.json._
 
-
+import java.nio.charset.StandardCharsets
 import java.time.LocalDateTime
+import java.util.Base64
 import scala.scalajs.js
 
 
@@ -26,6 +27,7 @@ object Main {
     "iconSize" -> js.Array(18, 18),
     "iconAnchor" -> js.Array(9, 9)
   ))
+
   val defaultRoute = "22"
 
   var icons: FeatureGroup = _
@@ -100,7 +102,10 @@ object Main {
             .foreach { bus =>
               val marker = Leaflet
                 .marker(js.Array(bus.latitude, bus.longitude), js.Dictionary("icon" -> busIcon))
+              val arrow = Leaflet
+                .marker(js.Array(bus.latitude, bus.longitude), js.Dictionary("icon" -> buildArrow(bus.heading)))
               markerGroup.addLayer(marker)
+              markerGroup.addLayer(arrow)
             }
 
           markerGroup.addTo(map)
@@ -108,5 +113,25 @@ object Main {
       }
 
     markerGroup
+  }
+
+  def buildArrow(rotation: Int): Icon = {
+    val size = 60
+    val arrowWidth = 8
+    val arrowHeight = 12
+    val arrowSvg =
+      f"""<svg xmlns="http://www.w3.org/2000/svg" xmlns:se="http://svg-edit.googlecode.com" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" width="$size" height="$size">
+         |  <g transform="rotate($rotation ${size / 2} ${size / 2})">
+         |    <polyline stroke="#303f9f" fill="#303f9f" points="${size / 2 - arrowWidth / 2}, $arrowHeight
+         |                                                      ${size / 2}, 0
+         |                                                      ${size / 2 + arrowWidth / 2}, $arrowHeight"/>
+         |  </g>
+         |</svg>
+         |""".stripMargin
+    Leaflet.icon(js.Dictionary(
+      "iconUrl" -> f"data:image/svg+xml;base64,${Base64.getEncoder.encodeToString(arrowSvg.getBytes(StandardCharsets.UTF_8))}",
+      "iconSize" -> js.Array(size, size),
+      "iconAnchor" -> js.Array(size / 2, size / 2)
+    ))
   }
 }

@@ -20,7 +20,8 @@ class BusTrackerClient @Inject()(ws: WSClient, implicit private val ec: Executio
       (JsPath \ "tmstmp").read[String].map(Helpers.convertCtaDate) and
       (JsPath \ "vid").read[String].map(_.toLong) and
       (JsPath \ "lat").read[String].map(_.toDouble) and
-      (JsPath \ "lon").read[String].map(_.toDouble)
+      (JsPath \ "lon").read[String].map(_.toDouble) and
+      (JsPath \ "hdg").read[String].map(_.toInt)
     ) (Bus.apply _)
   private val baseUrl = config.get[String]("app.ctaBusApi.baseUrl")
   private val apiKey = config.get[String]("app.ctaBusApi.key")

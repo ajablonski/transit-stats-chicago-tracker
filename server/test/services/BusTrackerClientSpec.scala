@@ -36,7 +36,8 @@ class BusTrackerClientSpec extends PlaySpec with GuiceOneAppPerTest {
               timestamp = LocalDateTime.parse("2021-02-27T15:42:55"),
               vehicleId = 8286,
               latitude = 41.93092727661133,
-              longitude = -87.79379762922015)))
+              longitude = -87.79379762922015,
+              heading = 92)))
         }
       }
     }
