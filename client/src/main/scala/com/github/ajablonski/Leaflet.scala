@@ -13,9 +13,11 @@ object Leaflet extends js.Object {
 
   def icon(config: js.Dictionary[js.Any]): Icon = js.native
 
-  def marker(coords: js.Array[Double], config: js.Dictionary[js.Any]): Marker = js.native
+  def marker(coords: js.Dictionary[Double], config: js.Dictionary[js.Any]): Marker = js.native
 
   def featureGroup(layers: Layer*): FeatureGroup = js.native
+
+  def geoJSON(data: js.Array[js.Dynamic], config: js.Dictionary[js.Any]): GeoJSON = js.native
 }
 
 @JSImport("leaflet", "Map")
@@ -38,7 +40,6 @@ class Layer extends js.Object {
   def remove(): Layer = js.native
 
   def addTo(map: Map): Layer = js.native
-
 }
 
 @JSImport("leaflet", "Marker")
@@ -49,13 +50,21 @@ class Marker extends Layer {}
 @js.native
 class Icon extends js.Object {}
 
-@JSImport("leaflet", "featureGroup")
+@JSImport("leaflet", "FeatureGroup")
 @js.native
 class FeatureGroup extends Layer {
   def addLayer(layer: Layer): FeatureGroup = js.native
 
   def getBounds(): LatLngBounds = js.native
 
+}
+
+@JSImport("leaflet", "GeoJSON")
+@js.native
+class GeoJSON extends FeatureGroup {
+  def addData(data: js.Array[js.Dynamic]): GeoJSON = js.native
+
+  override def addTo(map: Map): GeoJSON = js.native
 }
 
 @JSImport("leaflet", "LatLngBounds")

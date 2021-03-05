@@ -2,6 +2,7 @@ package controllers
 
 import clients.BusTrackerClient
 import com.github.ajablonski.shared.model.Bus
+import play.api.http.MediaRange
 import play.api.libs.json.{JsError, JsSuccess, Json, OFormat}
 import play.api.mvc._
 
@@ -16,7 +17,13 @@ class BusController @Inject()(val controllerComponents: ControllerComponents, bu
     busTrackerClient
       .getVehicles(routeId)
       .map {
-        case JsSuccess(value, _) => Ok(Json.toJson(value))
+        case JsSuccess(value, _) => {
+          if (request.acceptedTypes.exists(_.accepts("application/geo+json"))) {
+            Ok(Json.toJson(value.map(_.toGeoJSON())))
+          } else {
+            Ok(Json.toJson(value))
+          }
+        }
         case JsError(_) => InternalServerError("Error")
       }
   }

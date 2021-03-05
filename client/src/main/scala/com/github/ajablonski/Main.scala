@@ -1,6 +1,5 @@
 package com.github.ajablonski
 
-import com.github.ajablonski.shared.SharedMessages
 import com.github.ajablonski.shared.model._
 import com.github.ajablonski.shared.serialization.RouteSerializers
 import org.scalajs.dom
@@ -9,23 +8,12 @@ import org.scalajs.dom.raw.Event
 import play.api.libs.json._
 
 import java.nio.charset.StandardCharsets
-import java.time.LocalDateTime
 import java.util.Base64
 import scala.scalajs.js
 
 
 object Main {
-  implicit val routeReads = RouteSerializers.routeFormat
-  implicit val localDateTimeReads = Reads[LocalDateTime] {
-    case JsString(value) => JsSuccess(LocalDateTime.parse(value))
-    case _ => JsError("String expected")
-  }
-  implicit val busReads = Json.reads[Bus]
-
-  private val busIcon = buildBus()
-
   val defaultRoute = "22"
-
   var icons: FeatureGroup = _
 
   def main(args: Array[String]): Unit = {
@@ -41,6 +29,7 @@ object Main {
 
   def initSelect(routeChangeFunction: js.Function1[Event, _]): Unit = {
     import scala.concurrent.ExecutionContext.Implicits.global
+    implicit val routeReads: OFormat[Route] = RouteSerializers.routeFormat
 
     val routesSelect: dom.html.Select = dom.document.getElementById("routes").asInstanceOf[dom.html.Select]
 
@@ -84,31 +73,36 @@ object Main {
   def updateMap(map: Map, route: String): FeatureGroup = {
     import scala.concurrent.ExecutionContext.Implicits.global
 
-    val markerGroup = Leaflet.featureGroup()
+    val geoJsonMarkers = Leaflet.geoJSON(js.Array(), js.Dictionary(
+      "pointToLayer" -> pointToLayerFn
+    )).addTo(map)
 
     Ajax
-      .get(f"/routes/$route")
+      .get(f"/routes/$route", headers = Map("Accept" -> "application/geo+json"), responseType = "json")
       .foreach {
         xhr =>
-          Json.parse(xhr.responseText)
-            .as[List[Bus]]
-            .foreach { bus =>
-              val marker = Leaflet
-                .marker(js.Array(bus.latitude, bus.longitude), js.Dictionary("icon" -> busIcon))
-              val arrow = Leaflet
-                .marker(js.Array(bus.latitude, bus.longitude), js.Dictionary("icon" -> buildArrow(bus.heading)))
-              markerGroup.addLayer(marker)
-              markerGroup.addLayer(arrow)
-            }
-
-          markerGroup.addTo(map)
-          map.fitBounds(markerGroup.getBounds())
+          if (js.Array.isArray(xhr.response)) {
+            val data = xhr.response.asInstanceOf[js.Array[js.Dynamic]]
+            geoJsonMarkers.addData(data)
+          }
+          map.fitBounds(geoJsonMarkers.getBounds())
       }
 
-    markerGroup
+    geoJsonMarkers
   }
 
-  def buildBus(): Icon = {
+  val pointToLayerFn: (js.Dynamic, js.Dynamic) => FeatureGroup = (geoJsonPoint: js.Dynamic, latLon: js.Dynamic) => {
+    val group = Leaflet.featureGroup()
+    val marker = Leaflet
+      .marker(latLon.asInstanceOf[js.Dictionary[Double]], js.Dictionary("icon" -> busIcon))
+    val arrow = Leaflet
+      .marker(latLon.asInstanceOf[js.Dictionary[Double]], js.Dictionary("icon" -> buildArrow(geoJsonPoint.properties.heading.asInstanceOf[String].toInt)))
+    group.addLayer(marker)
+    group.addLayer(arrow)
+    group
+  }
+
+  val busIcon: Icon = {
     val size = 30
     val busSvg =
       f"""

@@ -9,4 +9,17 @@ case class Bus(destination: String,
                vehicleId: Long,
                latitude: Double,
                longitude: Double,
-               heading: Int) {}
+               heading: Int) {
+  def toGeoJSON(): GeoJSONFeature = {
+    GeoJSONFeature(
+      geometry = GeoJSONPoint(
+        List(longitude, latitude)
+      ),
+      properties = Map(
+        "heading" -> heading.toString,
+        "blockId" -> blockId,
+        "vehicleId" -> vehicleId.toString
+      )
+    )
+  }
+}
