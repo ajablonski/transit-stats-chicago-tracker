@@ -1,1 +1,27 @@
-#mapid { height: 600px; }
+#mapid {
+    flex: 1;
+    width: 100vw;
+}
+
+#app {
+    flex: 0 1;
+    width: 100vw
+}
+
+html {
+    height: 100%;
+    width: 100vw;
+}
+
+body {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    width: 100vw;
+    padding: 0;
+    margin: 0;
+}
+
+h1, h2, h3, h4 {
+    margin-top: 0;
+}

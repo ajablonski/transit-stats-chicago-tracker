@@ -29,9 +29,6 @@ object Main {
   var icons: FeatureGroup = _
 
   def main(args: Array[String]): Unit = {
-
-    dom.document.getElementById("scalajsShoutOut").textContent = SharedMessages.itWorks
-
     val map = initMap()
     initSelect(onRouteChange(map))
     icons = updateMap(map, defaultRoute)
