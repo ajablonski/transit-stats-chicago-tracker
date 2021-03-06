@@ -39,7 +39,8 @@ lazy val client = (project in file("client"))
     ),
     webpackConfigFile in fastOptJS := Some(baseDirectory.value / "webpack" / "dev.webpack.config.js"),
     npmDependencies in Compile ++= Seq(
-      "leaflet" -> "1.7.1"
+      "leaflet" -> "1.7.1",
+      "leaflet-realtime" -> "2.2.0"
     ),
     npmDevDependencies in Compile ++= Seq(
       "scalajs-friendly-source-map-loader" -> "0.1.5"

@@ -1,8 +1,9 @@
 package com.github.ajablonski
 
-import com.github.ajablonski.shared.model._
+import com.github.ajablonski.shared.model.Route
 import com.github.ajablonski.shared.serialization.RouteSerializers
 import org.scalajs.dom
+import org.scalajs.dom.experimental.{HttpMethod, Request, RequestInit}
 import org.scalajs.dom.ext.Ajax
 import org.scalajs.dom.raw.Event
 import play.api.libs.json._
@@ -10,11 +11,14 @@ import play.api.libs.json._
 import java.nio.charset.StandardCharsets
 import java.util.Base64
 import scala.scalajs.js
+import scala.scalajs.js.UndefOr
 
 
 object Main {
   val defaultRoute = "22"
-  var icons: FeatureGroup = _
+  var icons: Layer = _
+  var currentRoute = defaultRoute
+  var hasRebounded = false
 
   def main(args: Array[String]): Unit = {
     val map = initMap()
@@ -23,7 +27,8 @@ object Main {
   }
 
   def onRouteChange(map: Map): Event => Unit = { (event: Event) =>
-    icons.remove()
+    hasRebounded = false
+    icons.removeFrom(map)
     icons = updateMap(map, event.target.asInstanceOf[dom.html.Select].value)
   }
 
@@ -37,7 +42,6 @@ object Main {
     Ajax
       .get("/routes")
       .foreach(xhr => {
-
         Json.parse(xhr.responseText)
           .as[List[Route]]
           .foreach {
@@ -70,25 +74,37 @@ object Main {
     map
   }
 
-  def updateMap(map: Map, route: String): FeatureGroup = {
-    import scala.concurrent.ExecutionContext.Implicits.global
+  def updateMap(map: Map, route: String): Layer = {
+    val request = new Request(f"/routes/$route", new RequestInit() {
+      method = HttpMethod.GET
+      headers = js.Dictionary[String]("Accept" -> "application/geo+json")
+    })
+    val realtime = new Realtime(request, js.Dictionary(
+        "pointToLayer" -> pointToLayerFn,
+        "interval" -> 10_000,
+        "getFeatureId" -> {
+          (_: js.Dynamic).properties.blockId.asInstanceOf[String]
+        },
+        "updateFeature" -> {
+          (feature: js.Dynamic, oldLayer: UndefOr[FeatureGroup]) => {
+            if (oldLayer.isDefined) {
+              val latLng = Leaflet.GeoJSON.coordsToLatLng(feature.geometry.coordinates.asInstanceOf[js.Array[Double]])
+              oldLayer.get.invoke("setLatLng", latLng)
+            }
 
-    val geoJsonMarkers = Leaflet.geoJSON(js.Array(), js.Dictionary(
-      "pointToLayer" -> pointToLayerFn
-    )).addTo(map)
-
-    Ajax
-      .get(f"/routes/$route", headers = Map("Accept" -> "application/geo+json"), responseType = "json")
-      .foreach {
-        xhr =>
-          if (js.Array.isArray(xhr.response)) {
-            val data = xhr.response.asInstanceOf[js.Array[js.Dynamic]]
-            geoJsonMarkers.addData(data)
+            oldLayer
           }
-          map.fitBounds(geoJsonMarkers.getBounds())
+        }
+      ))
+    realtime.addTo(map)
+    realtime.on("update", () => {
+      if (!hasRebounded) {
+        map.fitBounds(realtime.getBounds())
+        hasRebounded = true
       }
-
-    geoJsonMarkers
+      js.undefined
+    })
+    realtime
   }
 
   val pointToLayerFn: (js.Dynamic, js.Dynamic) => FeatureGroup = (geoJsonPoint: js.Dynamic, latLon: js.Dynamic) => {
