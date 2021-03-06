@@ -1,6 +1,5 @@
 package controllers
 
-import com.github.ajablonski.shared.SharedMessages
 import play.api.mvc._
 
 import javax.inject._

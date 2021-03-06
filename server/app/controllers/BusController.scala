@@ -2,7 +2,6 @@ package controllers
 
 import clients.BusTrackerClient
 import com.github.ajablonski.shared.model.Bus
-import play.api.http.MediaRange
 import play.api.libs.json.{JsError, JsSuccess, Json, OFormat}
 import play.api.mvc._
 

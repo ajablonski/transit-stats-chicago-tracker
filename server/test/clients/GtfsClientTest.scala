@@ -56,7 +56,8 @@ class GtfsClientTest extends AnyWordSpec with Matchers with MockitoSugar {
         .thenReturn(ByteString(Files.readAllBytes(zipFile.toPath)))
 
       val client = new GtfsClient(wsClient, ExecutionContext.global, Configuration(
-        "app.cta.gtfsUrl" -> "http://fakeurl.com"
+        "app.cta.gtfsUrl" -> "http://fakeurl.com",
+        "app.filepath" -> Files.createTempDirectory("GtfsClientTest").toAbsolutePath.toString
       ))
 
       Await.result(client.getRoutes(), 1.minute)

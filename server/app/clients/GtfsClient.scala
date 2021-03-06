@@ -1,7 +1,5 @@
 package clients
 
-import akka.stream.scaladsl.Sink
-import akka.util.ByteString
 import com.github.ajablonski.shared.model.{Route, RouteType}
 import com.github.tototoshi.csv.CSVReader
 import net.lingala.zip4j.ZipFile
@@ -9,7 +7,7 @@ import play.api.Configuration
 import play.api.libs.ws.WSClient
 
 import java.io.File
-import java.nio.file.Files
+import java.nio.file.{Files, Paths}
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -17,12 +15,10 @@ import scala.concurrent.{ExecutionContext, Future}
 class GtfsClient @Inject()(ws: WSClient, implicit private val ec: ExecutionContext, config: Configuration) {
   private val baseUrl = config.get[String]("app.cta.gtfsUrl")
   private val gtfsPath = "downloads/sch_data/google_transit.zip"
-  private val zipFilePath = {
-    val path = Files.createTempFile("gtfs", ".zip")
-    path.toFile.deleteOnExit()
-    path
-  }
-  private val tempDirectory = Files.createTempDirectory("gtfs")
+  private val gtfsDirectory = config
+    .getOptional[String]("app.filepath")
+    .map(p => Paths.get(p, "gtfs"))
+    .getOrElse(Paths.get("tmp", "gtfs"))
 
   def getRoutes(): Future[List[Route]] = {
     getFeedFile("routes.txt")
@@ -41,21 +37,27 @@ class GtfsClient @Inject()(ws: WSClient, implicit private val ec: ExecutionConte
   }
 
   private def getFeedFile(fileName: String): Future[File] = {
-    if (tempDirectory.resolve(fileName).toFile.exists()) {
-      Future.successful(tempDirectory.resolve(fileName).toFile)
+    if (gtfsDirectory.resolve(fileName).toFile.exists()) {
+      Future.successful(gtfsDirectory.resolve(fileName).toFile)
     } else {
+      if (!gtfsDirectory.toFile.exists()) {
+        Files.createDirectories(gtfsDirectory)
+      }
+
       ws.url(f"$baseUrl/$gtfsPath")
         .get()
         .map {
           response =>
+            val zipFilePath = gtfsDirectory.resolve("gtfs.zip")
+            Files.createFile(zipFilePath)
             Files.write(zipFilePath, response.bodyAsBytes.toArray)
 
             zipFilePath.toFile
         }
         .map { file =>
-          new ZipFile(file).extractAll(tempDirectory.toString)
+          new ZipFile(file).extractAll(gtfsDirectory.toString)
 
-          tempDirectory.resolve(fileName).toFile
+          gtfsDirectory.resolve(fileName).toFile
         }
     }
   }
