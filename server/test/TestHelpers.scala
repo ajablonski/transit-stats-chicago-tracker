@@ -22,34 +22,35 @@ package object TestHelpers {
     gtfsFile
   }
 
+  val mockGetVehiclesJSON = """
+{
+    "bustime-response": {
+        "vehicle": [
+            {
+                "des": "Nature Museum",
+                "dly": false,
+                "hdg": "92",
+                "lat": "41.93092727661133",
+                "lon": "-87.79379762922015",
+                "pdist": 3338,
+                "pid": 4619,
+                "rt": "76",
+                "tablockid": "76 -405",
+                "tatripid": "372",
+                "tmstmp": "20210227 15:42:55",
+                "vid": "8286",
+                "zone": ""
+            }
+        ]
+    }
+}"""
+
   def mockCta(components: BuiltInComponents): PartialFunction[RequestHeader, Handler] = {
     import components.{defaultActionBuilder => Action}
     import play.api.mvc.Results._
     {
       case GET(p"/getvehicles") => Action {
-        Ok(
-          """
-            |{
-            |    "bustime-response": {
-            |        "vehicle": [
-            |            {
-            |                "des": "Nature Museum",
-            |                "dly": false,
-            |                "hdg": "92",
-            |                "lat": "41.93092727661133",
-            |                "lon": "-87.79379762922015",
-            |                "pdist": 3338,
-            |                "pid": 4619,
-            |                "rt": "76",
-            |                "tablockid": "76 -405",
-            |                "tatripid": "372",
-            |                "tmstmp": "20210227 15:42:55",
-            |                "vid": "8286",
-            |                "zone": ""
-            |            }
-            |        ]
-            |    }
-            |}""".stripMargin).as(ContentTypes.JSON)
+        Ok(mockGetVehiclesJSON).as(ContentTypes.JSON)
       }
       case GET(p"/downloads/sch_data/google_transit.zip") => Action {
         Ok.sendFile(gtfsZipFile)(components.executionContext, components.fileMimeTypes)

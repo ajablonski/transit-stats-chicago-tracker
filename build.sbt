@@ -17,6 +17,7 @@ lazy val server = (project in file("server"))
       "com.vmunier" %% "scalajs-scripts" % "1.1.4",
       guice,
       ws,
+      ehcache,
       specs2 % Test,
       "net.lingala.zip4j" % "zip4j" % "2.7.0",
       "com.github.tototoshi" %% "scala-csv" % "1.3.7",
