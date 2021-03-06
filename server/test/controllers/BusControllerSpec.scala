@@ -24,7 +24,7 @@ class BusControllerSpec extends PlaySpec with GuiceOneAppPerTest with Injecting 
     "return a list of all buses on route right now" in {
       val request = FakeRequest("GET", "/routes/76")
       val mockBusTrackerClient = mock[BusTrackerClient]
-      when(mockBusTrackerClient.getVehicles("76")) thenReturn Future.successful(JsSuccess(List(fakeBus)))
+      when(mockBusTrackerClient.getVehicles("76")) thenReturn Future.successful(List(fakeBus))
       val response = new BusController(stubControllerComponents(), mockBusTrackerClient, inject[ExecutionContext]).get("76").apply(request)
 
 
@@ -38,7 +38,7 @@ class BusControllerSpec extends PlaySpec with GuiceOneAppPerTest with Injecting 
     "return a geojson format list when geojson format requested" in {
       val request = FakeRequest[AnyContentAsEmpty.type]("GET", "/routes/76", body = AnyContentAsEmpty, headers = Headers("Accept" -> "application/geo+json"))
       val mockBusTrackerClient = mock[BusTrackerClient]
-      when(mockBusTrackerClient.getVehicles("76")) thenReturn Future.successful(JsSuccess(List(fakeBus)))
+      when(mockBusTrackerClient.getVehicles("76")) thenReturn Future.successful(List(fakeBus))
       val response = new BusController(stubControllerComponents(), mockBusTrackerClient, inject[ExecutionContext]).get("76").apply(request)
 
 

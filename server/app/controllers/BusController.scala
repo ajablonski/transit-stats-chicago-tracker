@@ -15,15 +15,12 @@ class BusController @Inject()(val controllerComponents: ControllerComponents, bu
   def get(routeId: String): Action[AnyContent] = Action.async { implicit request: Request[AnyContent] =>
     busTrackerClient
       .getVehicles(routeId)
-      .map {
-        case JsSuccess(value, _) => {
-          if (request.acceptedTypes.exists(_.accepts("application/geo+json"))) {
-            Ok(Json.toJson(value.map(_.toGeoJSON())))
-          } else {
-            Ok(Json.toJson(value))
-          }
+      .map { buses =>
+        if (request.acceptedTypes.exists(_.accepts("application/geo+json"))) {
+          Ok(Json.toJson(buses.map(_.toGeoJSON())))
+        } else {
+          Ok(Json.toJson(buses))
         }
-        case JsError(_) => InternalServerError("Error")
       }
   }
 }

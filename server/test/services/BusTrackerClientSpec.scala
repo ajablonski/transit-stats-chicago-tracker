@@ -30,14 +30,14 @@ class BusTrackerClientSpec extends PlaySpec with GuiceOneAppPerTest {
           client =>
             val busTrackerClient = new BusTrackerClient(client, ExecutionContext.global, app.configuration)
             val result = Await.result(busTrackerClient.getVehicles("76"), 1.minute)
-            result mustEqual JsSuccess(List(Bus(destination = "Nature Museum",
+            result mustEqual List(Bus(destination = "Nature Museum",
               tripId = "372",
               blockId = "76 -405",
               timestamp = LocalDateTime.parse("2021-02-27T15:42:55"),
               vehicleId = 8286,
               latitude = 41.93092727661133,
               longitude = -87.79379762922015,
-              heading = 92)))
+              heading = 92))
         }
       }
     }

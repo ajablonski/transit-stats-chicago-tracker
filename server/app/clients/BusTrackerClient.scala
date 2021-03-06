@@ -2,16 +2,18 @@ package clients
 
 import com.github.ajablonski.shared.model.Bus
 import helpers.Helpers
-import play.api.Configuration
+import play.api.{Configuration, Logger}
 import play.api.libs.functional.syntax._
 import play.api.libs.json._
 import play.api.libs.ws.WSClient
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.Try
 
 @Singleton
 class BusTrackerClient @Inject()(ws: WSClient, implicit private val ec: ExecutionContext, config: Configuration) {
+  private val logger = Logger(this.getClass.getName)
   private val vehiclesEndpoint = "getvehicles"
   private implicit val busReads: Reads[Bus] = (
     (JsPath \ "des").read[String] and
@@ -26,7 +28,7 @@ class BusTrackerClient @Inject()(ws: WSClient, implicit private val ec: Executio
   private val baseUrl = config.get[String]("app.ctaBusApi.baseUrl")
   private val apiKey = config.get[String]("app.ctaBusApi.key")
 
-  def getVehicles(routeId: String): Future[JsResult[List[Bus]]] = {
+  def getVehicles(routeId: String): Future[List[Bus]] = {
     ws.url(s"$baseUrl/$vehiclesEndpoint")
       .addQueryStringParameters(
         ("key", apiKey),
@@ -35,9 +37,14 @@ class BusTrackerClient @Inject()(ws: WSClient, implicit private val ec: Executio
         ("format", "json")
       )
       .get()
-      .map { response =>
-        (response.json \ "bustime-response" \ "vehicle")
-          .validate[List[Bus]]
+      .flatMap { response =>
+        Future.fromTry(Try(
+          (response.json \ "bustime-response" \ "vehicle")
+            .as[List[Bus]]))
+      }
+      .recover { error =>
+        logger.error("Request failed, exception was", error)
+        List.empty[Bus]
       }
   }
 }
