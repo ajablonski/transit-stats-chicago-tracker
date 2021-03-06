@@ -17,7 +17,6 @@ import scala.scalajs.js.UndefOr
 object Main {
   val defaultRoute = "22"
   var icons: Layer = _
-  var currentRoute = defaultRoute
   var hasRebounded = false
 
   def main(args: Array[String]): Unit = {
@@ -88,11 +87,12 @@ object Main {
         "updateFeature" -> {
           (feature: js.Dynamic, oldLayer: UndefOr[FeatureGroup]) => {
             if (oldLayer.isDefined) {
+              oldLayer.get.remove()
               val latLng = Leaflet.GeoJSON.coordsToLatLng(feature.geometry.coordinates.asInstanceOf[js.Array[Double]])
-              oldLayer.get.invoke("setLatLng", latLng)
+              pointToLayerFn(feature, latLng)
+            } else {
+              oldLayer
             }
-
-            oldLayer
           }
         }
       ))
@@ -107,7 +107,7 @@ object Main {
     realtime
   }
 
-  val pointToLayerFn: (js.Dynamic, js.Dynamic) => FeatureGroup = (geoJsonPoint: js.Dynamic, latLon: js.Dynamic) => {
+  val pointToLayerFn: (js.Dynamic, LatLng) => FeatureGroup = (geoJsonPoint: js.Dynamic, latLon: LatLng) => {
     val group = Leaflet.featureGroup()
     val marker = Leaflet
       .marker(latLon.asInstanceOf[js.Dictionary[Double]], js.Dictionary("icon" -> busIcon))
