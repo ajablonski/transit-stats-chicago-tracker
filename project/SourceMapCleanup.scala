@@ -27,6 +27,16 @@ object SourceMapCleanup {
           .replaceAll(
             raw"(?:\.\./)+home/runner/work/sbt-locales/sbt-locales/",
             "https://raw.githubusercontent.com/cquiroz/sbt-locales/v2.2.0/")
+          .replaceAll(
+            raw"(?:\.\./)+raquo/code/scala/airstream/",
+            "https://raw.githubusercontent.com/raquo/airstream/v0.12.0/")
+          .replaceAll(
+            raw"(?:\.\./)+raquo/code/scala/laminar/",
+            "https://raw.githubusercontent.com/raquo/laminar/v0.12.1/")
+          .replaceAll(
+            raw"(?:\.\./)+raquo/code/scala/domtypes/",
+            "https://raw.githubusercontent.com/raquo/scala-dom-types/v0.13.0/")
+
       })
       Files.writeString(sourceMapFile.toPath, Json.prettyPrint(Json.toJson(newSourceMap)), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)
       println("Replaced known entries incorrectly mapped to local path")
