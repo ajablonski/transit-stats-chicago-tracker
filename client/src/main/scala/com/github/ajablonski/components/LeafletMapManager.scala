@@ -16,6 +16,7 @@ import scala.scalajs.js.UndefOr
 class LeafletMapManager(routeStream: Signal[String]) {
   private val mapId = "mapid"
   private var realtimeIcons: Option[Realtime] = None
+  private val hasReBounded = Var(false)
 
   def render(): ReactiveElement[html.Div] = {
     div(
@@ -26,8 +27,8 @@ class LeafletMapManager(routeStream: Signal[String]) {
 
         routeStream.addObserver(Observer(route => {
           realtimeIcons.foreach(_.removeFrom(map))
+          hasReBounded.set(false)
           realtimeIcons = Some(updateRealtimeRefresh(map, route))
-          realtimeIcons.map { icons => map.fitBounds(icons.getBounds()) }
         }))(ctx.owner)
       })
     )
@@ -54,7 +55,7 @@ class LeafletMapManager(routeStream: Signal[String]) {
       method = HttpMethod.GET
       headers = js.Dictionary[String]("Accept" -> "application/geo+json")
     })
-    new Realtime(request, js.Dictionary(
+    val realtime = new Realtime(request, js.Dictionary(
       "pointToLayer" -> pointToLayerFn,
       "interval" -> 10_000,
       "getFeatureId" -> {
@@ -73,6 +74,15 @@ class LeafletMapManager(routeStream: Signal[String]) {
         }
       }
     )).addTo(map)
+
+    realtime.on("update", () => {
+      if (!hasReBounded.now()) {
+        map.fitBounds(realtime.getBounds())
+        hasReBounded.set(true)
+      }
+    })
+
+    realtime
   }
 
   private val pointToLayerFn: (js.Dynamic, LatLng) => FeatureGroup = (geoJsonPoint: js.Dynamic, latLon: LatLng) => {
