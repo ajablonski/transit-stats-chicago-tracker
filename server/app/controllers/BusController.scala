@@ -12,7 +12,7 @@ import scala.concurrent.ExecutionContext
 class BusController @Inject()(val controllerComponents: ControllerComponents, busTrackerClient: BusTrackerClient, implicit private val ec: ExecutionContext) extends BaseController {
   implicit private val busJson: OFormat[Bus] = Json.format[Bus]
 
-  def get(routeId: String): Action[AnyContent] = Action.async { implicit request: Request[AnyContent] =>
+  def getVehicles(routeId: String): Action[AnyContent] = Action.async { implicit request: Request[AnyContent] =>
     busTrackerClient
       .getVehicles(routeId)
       .map { buses =>

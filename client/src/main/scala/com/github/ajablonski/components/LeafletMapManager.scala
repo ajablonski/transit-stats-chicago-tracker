@@ -51,7 +51,7 @@ class LeafletMapManager(routeStream: Signal[String]) {
   }
 
   private def updateRealtimeRefresh(map: facades.Map, route: String): Realtime = {
-    val request = new Request(f"/routes/$route", new RequestInit() {
+    val request = new Request(f"/buses/routes/$route/vehicles", new RequestInit() {
       method = HttpMethod.GET
       headers = js.Dictionary[String]("Accept" -> "application/geo+json")
     })

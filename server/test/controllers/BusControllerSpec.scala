@@ -25,7 +25,7 @@ class BusControllerSpec extends PlaySpec with GuiceOneAppPerTest with Injecting 
       val request = FakeRequest("GET", "/routes/76")
       val mockBusTrackerClient = mock[BusTrackerClient]
       when(mockBusTrackerClient.getVehicles("76")) thenReturn Future.successful(List(fakeBus))
-      val response = new BusController(stubControllerComponents(), mockBusTrackerClient, inject[ExecutionContext]).get("76").apply(request)
+      val response = new BusController(stubControllerComponents(), mockBusTrackerClient, inject[ExecutionContext]).getVehicles("76").apply(request)
 
 
       status(response) mustBe OK
@@ -39,7 +39,7 @@ class BusControllerSpec extends PlaySpec with GuiceOneAppPerTest with Injecting 
       val request = FakeRequest[AnyContentAsEmpty.type]("GET", "/routes/76", body = AnyContentAsEmpty, headers = Headers("Accept" -> "application/geo+json"))
       val mockBusTrackerClient = mock[BusTrackerClient]
       when(mockBusTrackerClient.getVehicles("76")) thenReturn Future.successful(List(fakeBus))
-      val response = new BusController(stubControllerComponents(), mockBusTrackerClient, inject[ExecutionContext]).get("76").apply(request)
+      val response = new BusController(stubControllerComponents(), mockBusTrackerClient, inject[ExecutionContext]).getVehicles("76").apply(request)
 
 
       status(response) mustBe OK
