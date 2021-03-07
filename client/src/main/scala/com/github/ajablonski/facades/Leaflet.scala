@@ -30,11 +30,6 @@ class Map extends js.Object {
   def eachLayer(layerFunction: js.Function1[Layer, Unit]): Map = js.native
 }
 
-@JSImport("leaflet", "TileLayer")
-@js.native
-class TileLayer extends js.Object {
-  def addTo(map: Map): TileLayer = js.native
-}
 
 @JSImport("leaflet", "Layer")
 @js.native
@@ -43,8 +38,13 @@ class Layer extends js.Object {
 
   def remove(): Layer = js.native
 
-  def addTo(map: Map): Layer = js.native
+  def addTo(map: Map): this.type = js.native
 }
+
+@JSImport("leaflet", "TileLayer")
+@js.native
+class TileLayer extends Layer {}
+
 
 @JSImport("leaflet", "Marker")
 @js.native
@@ -70,8 +70,6 @@ class GeoJSON extends FeatureGroup {
   def addData(data: js.Array[js.Dynamic]): GeoJSON = js.native
 
   def coordsToLatLng(coords: js.Array[Double]): LatLng = js.native
-
-  override def addTo(map: Map): GeoJSON = js.native
 }
 
 @JSImport("leaflet", "LatLngBounds")

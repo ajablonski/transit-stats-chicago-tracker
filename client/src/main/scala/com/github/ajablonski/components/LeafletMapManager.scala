@@ -1,7 +1,7 @@
 package com.github.ajablonski.components
 
 import com.github.ajablonski.facades
-import com.github.ajablonski.facades.{FeatureGroup, Icon, LatLng, Layer, Leaflet, Realtime}
+import com.github.ajablonski.facades._
 import com.raquo.laminar.api.L._
 import com.raquo.laminar.nodes.ReactiveElement
 import org.scalajs.dom.experimental.{HttpMethod, Request, RequestInit}
@@ -15,8 +15,7 @@ import scala.scalajs.js.UndefOr
 
 class LeafletMapManager(routeStream: Signal[String]) {
   private val mapId = "mapid"
-  var realtimeIcons: Option[Realtime] = None
-  val reboundedStream = Var(false)
+  private var realtimeIcons: Option[Realtime] = None
 
   def render(): ReactiveElement[html.Div] = {
     div(
@@ -26,9 +25,8 @@ class LeafletMapManager(routeStream: Signal[String]) {
         val map = initMap()
 
         routeStream.addObserver(Observer(route => {
-          reboundedStream.set(false)
           realtimeIcons.foreach(_.removeFrom(map))
-          realtimeIcons = Some(updateMap(map, route))
+          realtimeIcons = Some(updateRealtimeRefresh(map, route))
           realtimeIcons.map { icons => map.fitBounds(icons.getBounds()) }
         }))(ctx.owner)
       })
@@ -43,7 +41,6 @@ class LeafletMapManager(routeStream: Signal[String]) {
 
     Leaflet.tileLayer("https://stamen-tiles-{s}.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}{r}.{ext}", js.Dictionary(
       "attribution" -> """Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors""",
-      "subdomains" -> "abcd",
       "minZoom" -> 0,
       "maxZoom" -> 20,
       "ext" -> "png"
@@ -52,12 +49,12 @@ class LeafletMapManager(routeStream: Signal[String]) {
     map
   }
 
-  private def updateMap(map: facades.Map, route: String): Realtime = {
+  private def updateRealtimeRefresh(map: facades.Map, route: String): Realtime = {
     val request = new Request(f"/routes/$route", new RequestInit() {
       method = HttpMethod.GET
       headers = js.Dictionary[String]("Accept" -> "application/geo+json")
     })
-    val realtime = new Realtime(request, js.Dictionary(
+    new Realtime(request, js.Dictionary(
       "pointToLayer" -> pointToLayerFn,
       "interval" -> 10_000,
       "getFeatureId" -> {
@@ -75,9 +72,7 @@ class LeafletMapManager(routeStream: Signal[String]) {
           }
         }
       }
-    ))
-    realtime.addTo(map)
-    realtime
+    )).addTo(map)
   }
 
   private val pointToLayerFn: (js.Dynamic, LatLng) => FeatureGroup = (geoJsonPoint: js.Dynamic, latLon: LatLng) => {
