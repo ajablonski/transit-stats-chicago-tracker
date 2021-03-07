@@ -1,4 +1,4 @@
-package com.github.ajablonski
+package com.github.ajablonski.facades
 
 import scala.scalajs.js
 import scala.scalajs.js.annotation.JSImport
