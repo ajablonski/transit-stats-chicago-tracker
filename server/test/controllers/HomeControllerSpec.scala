@@ -5,8 +5,8 @@ import org.scalatestplus.play._
 import org.scalatestplus.play.guice._
 import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.test._
 import play.api.test.Helpers._
+import play.api.test._
 
 /**
  * Add your spec here.
@@ -18,7 +18,12 @@ class HomeControllerSpec extends PlaySpec with GuiceOneAppPerTest with Injecting
 
   override def newAppForTest(testData: TestData): Application =
     new GuiceApplicationBuilder()
-      .configure(Map("app.ctaBusApi.key" -> "fakekey"))
+      .configure(Map(
+        "app.ctaBusApi.key" -> "fakekey",
+        "app.ctaTrainApi.key" -> "fakekey",
+        "app.ctaBusApi.cacheTimeInSeconds" -> "1",
+        "app.ctaTrainApi.cacheTimeInSeconds" -> "1"
+      ))
       .build()
 
   "HomeController GET" should {

@@ -2,6 +2,7 @@ package controllers
 
 import clients.GtfsClient
 import com.github.ajablonski.shared.model.{BusRouteType, Route}
+import com.github.ajablonski.shared.serialization.RouteSerializers
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
@@ -10,7 +11,6 @@ import play.api.libs.json.OFormat
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{stubControllerComponents, _}
 import play.core.server.Server
-import com.github.ajablonski.shared.serialization.RouteSerializers
 
 import scala.concurrent.Future
 
@@ -37,7 +37,13 @@ class RouteControllerSpec extends PlaySpec with MockitoSugar {
             .configure("app" -> Map(
               "ctaBusApi" -> Map(
                 "key" -> "fakeKey",
-                "baseUrl" -> f"http://localhost:$port"
+                "baseUrl" -> f"http://localhost:$port",
+                "cacheTimeInSeconds" -> "1"
+              ),
+              "ctaTrainApi" -> Map(
+                "key" -> "fakeKey",
+                "baseUrl" -> f"http://localhost:$port",
+                "cacheTimeInSeconds" -> "1"
               ),
               "cta" -> Map(
                 "gtfsUrl" -> f"http://localhost:$port"

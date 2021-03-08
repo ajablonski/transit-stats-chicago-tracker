@@ -17,8 +17,7 @@ lazy val server = (project in file("server"))
       "com.vmunier" %% "scalajs-scripts" % "1.1.4",
       guice,
       ws,
-      ehcache,
-      specs2 % Test,
+      caffeine,
       "net.lingala.zip4j" % "zip4j" % "2.7.0",
       "com.github.tototoshi" %% "scala-csv" % "1.3.7",
       "org.scalatestplus.play" %% "scalatestplus-play" % "5.1.0" % Test,
@@ -71,7 +70,13 @@ lazy val shared = crossProject(JSPlatform, JVMPlatform)
   .settings(commonSettings)
   .settings(
     libraryDependencies ++= Seq(
-      "com.typesafe.play" %%% "play-json" % "2.9.2"
+      "com.typesafe.play" %%% "play-json" % "2.9.2",
+      "org.scalatest" %%% "scalatest" % "3.2.5" % "test"
+    )
+  )
+  .jsSettings(
+    libraryDependencies ++= Seq(
+      "io.github.cquiroz" %%% "scala-java-time" % "2.2.0"
     )
   )
   .jsConfigure(_.enablePlugins(ScalaJSBundlerPlugin))

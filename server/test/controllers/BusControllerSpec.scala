@@ -1,14 +1,14 @@
 package controllers
 
 import clients.BusTrackerClient
-import com.github.ajablonski.shared.model.{Bus, GeoJSON}
+import com.github.ajablonski.shared.model.Bus
 import org.mockito.Mockito.when
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneAppPerTest
 import play.api.http.Status.OK
-import play.api.libs.json.{JsArray, JsDefined, JsLookupResult, JsNumber, JsObject, JsString, JsSuccess, Json, OFormat}
+import play.api.libs.json._
 import play.api.mvc.{AnyContentAsEmpty, Headers}
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Injecting}

@@ -1,6 +1,5 @@
-package services
+package clients
 
-import clients.BusTrackerClient
 import com.github.ajablonski.shared.model.Bus
 import org.mockito.ArgumentMatchers.{any, anyString}
 import org.mockito.Mockito._
@@ -25,7 +24,7 @@ class BusTrackerClientSpec extends PlaySpec with GuiceOneAppPerTest with Mockito
     new GuiceApplicationBuilder()
       .configure("app.ctaBusApi.key" -> "fakekey",
         "app.ctaBusApi.cacheTimeInSeconds" -> 1,
-        "app.ctaBusApi.baseUrl" -> "")
+        "app.ctaBusApi.baseUrl" -> "/buses")
       .build()
 
 
@@ -54,7 +53,7 @@ class BusTrackerClientSpec extends PlaySpec with GuiceOneAppPerTest with Mockito
       val busTrackerClient = new BusTrackerClient(client, ExecutionContext.global, app.configuration, inject[SyncCacheApi])
       when(client.url(anyString()).addQueryStringParameters(any[(String, String)]()).get())
         .thenReturn(Future.successful(response))
-      when(response.json).thenReturn(Json.parse(TestHelpers.mockGetVehiclesJSON))
+      when(response.json).thenReturn(Json.parse(TestHelpers.mockBusVehiclesJSON))
 
       Await.result(busTrackerClient.getVehicles("76"), 1.minute)
       verify(response).json

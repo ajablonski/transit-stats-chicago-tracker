@@ -38,10 +38,10 @@ class BusTrackerClient @Inject()(ws: WSClient,
     cache.getOrElseUpdate(f"route/$routeId", routeCacheTimeSeconds.seconds) {
       ws.url(s"$baseUrl/$vehiclesEndpoint")
         .addQueryStringParameters(
-          ("key", apiKey),
-          ("tmres", "s"),
-          ("rt", routeId),
-          ("format", "json")
+          "key" -> apiKey,
+          "tmres" -> "s",
+          "rt" -> routeId,
+          "format" -> "json"
         )
         .get()
         .flatMap { response =>
