@@ -16,7 +16,7 @@ object Streams {
 
   val routeStream = Var(defaultRoute)
 
-  def routesEventStream(): EventStream[List[ReactiveHtmlElement[html.Option]]] = {
+  def routesEventStream(): EventStream[List[Route]] = {
     implicit val routeReads: OFormat[Route] = RouteSerializers.routeFormat
 
     AjaxEventStream
@@ -25,18 +25,6 @@ object Streams {
       .map { xhr =>
         Json.parse(xhr.responseText)
           .as[List[Route]]
-          .map { route =>
-            val opt = option(
-              customHtmlAttr("label", StringAsIsCodec) := f"${route.routeId}: ${route.name}",
-              value := route.routeId,
-              f"${route.routeId}: ${route.name}"
-            )
-            if (route.routeId == routeStream.now()) {
-              opt.amend(selected := true)
-            } else {
-              opt
-            }
-          }
       }
   }
 }
