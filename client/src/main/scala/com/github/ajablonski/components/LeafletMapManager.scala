@@ -1,11 +1,9 @@
 package com.github.ajablonski.components
 
-import com.github.ajablonski.{Streams, facades}
 import com.github.ajablonski.facades._
-import com.github.ajablonski.shared.model.{BusRouteType, TrainRouteType}
+import com.github.ajablonski.{Streams, facades}
 import com.raquo.laminar.api.L._
 import com.raquo.laminar.nodes.ReactiveElement
-import org.scalajs.dom.experimental.{HttpMethod, Request, RequestInit}
 import org.scalajs.dom.html
 
 import java.nio.charset.StandardCharsets
