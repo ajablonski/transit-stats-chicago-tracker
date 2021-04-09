@@ -40,8 +40,8 @@ lazy val client = (project in file("client"))
       "org.scala-js" %%% "scalajs-dom" % "1.1.0",
       "com.lihaoyi" %%% "upickle" % "1.2.3",
       "io.github.cquiroz" %%% "scala-java-time" % "2.2.0",
-      "com.raquo" %%% "laminar" % "0.12.1",
-      "com.raquo" %%% "airstream" % "0.12.0"
+      "com.raquo" %%% "laminar" % "0.12.2",
+      "com.raquo" %%% "airstream" % "0.12.2"
     ),
     webpackConfigFile in fastOptJS := Some(baseDirectory.value / "webpack" / "dev.webpack.config.js"),
     npmDependencies in Compile ++= Seq(
