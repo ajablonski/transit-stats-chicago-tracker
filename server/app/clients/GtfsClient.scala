@@ -6,10 +6,11 @@ import net.lingala.zip4j.ZipFile
 import play.api.Configuration
 import play.api.libs.ws.WSClient
 
-import java.io.File
+import java.io.{File, FileNotFoundException}
 import java.nio.file.{Files, Paths}
 import javax.inject.{Inject, Singleton}
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.duration.DurationInt
+import scala.concurrent.{Await, ExecutionContext, Future}
 
 @Singleton
 class GtfsClient @Inject()(ws: WSClient, implicit private val ec: ExecutionContext, config: Configuration) {
@@ -19,6 +20,9 @@ class GtfsClient @Inject()(ws: WSClient, implicit private val ec: ExecutionConte
     .getOptional[String]("app.filepath")
     .map(p => Paths.get(p, "gtfs"))
     .getOrElse(Paths.get("tmp", "gtfs"))
+    .toAbsolutePath
+  private var hasUnzipped = false
+  Await.ready(fetchGtfsFile(), 30.seconds)
 
   def getRoutes(): Future[List[Route]] = {
     getFeedFile("routes.txt")
@@ -38,39 +42,43 @@ class GtfsClient @Inject()(ws: WSClient, implicit private val ec: ExecutionConte
 
   private def getFeedFile(fileName: String): Future[File] = {
     val feedFile = gtfsDirectory.resolve(fileName).toFile
-    val zipFilePath = gtfsDirectory.resolve("gtfs.zip")
 
     if (feedFile.exists()) {
       Future.successful(feedFile)
     } else {
-      synchronized {
-        if (!gtfsDirectory.toFile.exists()) {
-          Files.createDirectories(gtfsDirectory)
-        }
-      }
+      Future.failed[File](new FileNotFoundException(s"$feedFile not found"))
+    }
+  }
 
-      ws.url(f"$baseUrl/$gtfsPath")
-        .get()
-        .map {
-          response =>
-            synchronized {
-              if (!zipFilePath.toFile.exists()) {
-                Files.createFile(zipFilePath)
-                Files.write(zipFilePath, response.bodyAsBytes.toArray)
-              }
-            }
+  private def fetchGtfsFile(): Future[File] = {
+    val zipFilePath = gtfsDirectory.resolve("gtfs.zip")
 
-            zipFilePath.toFile
-        }
-        .map { file =>
+    if (!gtfsDirectory.toFile.exists()) {
+      Files.createDirectories(gtfsDirectory)
+    }
+
+    ws.url(f"$baseUrl/$gtfsPath")
+      .get()
+      .map {
+        response =>
           synchronized {
-            if (!feedFile.exists()) {
-              new ZipFile(file).extractAll(gtfsDirectory.toString)
+            if (!zipFilePath.toFile.exists()) {
+              Files.createFile(zipFilePath)
+              Files.write(zipFilePath, response.bodyAsBytes.toArray)
             }
           }
 
-          feedFile
+          zipFilePath.toFile
+      }
+      .map { file =>
+        synchronized {
+          if (!hasUnzipped) {
+            new ZipFile(file).extractAll(gtfsDirectory.toString)
+            hasUnzipped = true
+          }
         }
-    }
+
+        file
+      }
   }
 }
