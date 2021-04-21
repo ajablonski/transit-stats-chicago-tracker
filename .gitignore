@@ -8,3 +8,5 @@ target
 /RUNNING_PID
 .bsp
 tmp
+docker/*.zip
+docker/secrets

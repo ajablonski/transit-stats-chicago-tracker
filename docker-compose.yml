@@ -1,0 +1,19 @@
+version: "3.9"
+
+services:
+  transit-stats-chicago:
+    image: local/transit-stats-chicago:latest
+    ports:
+      - "9001:9000"
+    secrets:
+      - app_bus_tracker_api_key
+      - app_train_tracker_api_key
+      - app_secret
+
+secrets:
+  app_bus_tracker_api_key:
+    file: ./docker/secrets/app_bus_tracker_api_key
+  app_train_tracker_api_key:
+    file: ./docker/secrets/app_train_tracker_api_key
+  app_secret:
+    file: ./docker/secrets/app_secret
