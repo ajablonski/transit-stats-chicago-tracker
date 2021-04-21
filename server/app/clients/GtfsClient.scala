@@ -27,37 +27,49 @@ class GtfsClient @Inject()(ws: WSClient, implicit private val ec: ExecutionConte
           .open(file)
           .allWithHeaders()
           .map { line =>
-              Route(routeId = line("route_id"),
-                name = line("route_long_name"),
-                `type` = RouteType.fromGtfsCode(line("route_type")),
-                color = line("route_color"),
-                textColor = line("route_text_color"))
+            Route(routeId = line("route_id"),
+              name = line("route_long_name"),
+              `type` = RouteType.fromGtfsCode(line("route_type")),
+              color = line("route_color"),
+              textColor = line("route_text_color"))
           }
       }
   }
 
   private def getFeedFile(fileName: String): Future[File] = {
-    if (gtfsDirectory.resolve(fileName).toFile.exists()) {
-      Future.successful(gtfsDirectory.resolve(fileName).toFile)
+    val feedFile = gtfsDirectory.resolve(fileName).toFile
+    val zipFilePath = gtfsDirectory.resolve("gtfs.zip")
+
+    if (feedFile.exists()) {
+      Future.successful(feedFile)
     } else {
-      if (!gtfsDirectory.toFile.exists()) {
-        Files.createDirectories(gtfsDirectory)
+      synchronized {
+        if (!gtfsDirectory.toFile.exists()) {
+          Files.createDirectories(gtfsDirectory)
+        }
       }
 
       ws.url(f"$baseUrl/$gtfsPath")
         .get()
         .map {
           response =>
-            val zipFilePath = gtfsDirectory.resolve("gtfs.zip")
-            Files.createFile(zipFilePath)
-            Files.write(zipFilePath, response.bodyAsBytes.toArray)
+            synchronized {
+              if (!zipFilePath.toFile.exists()) {
+                Files.createFile(zipFilePath)
+                Files.write(zipFilePath, response.bodyAsBytes.toArray)
+              }
+            }
 
             zipFilePath.toFile
         }
         .map { file =>
-          new ZipFile(file).extractAll(gtfsDirectory.toString)
+          synchronized {
+            if (!feedFile.exists()) {
+              new ZipFile(file).extractAll(gtfsDirectory.toString)
+            }
+          }
 
-          gtfsDirectory.resolve(fileName).toFile
+          feedFile
         }
     }
   }

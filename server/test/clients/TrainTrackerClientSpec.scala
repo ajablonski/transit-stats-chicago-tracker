@@ -29,7 +29,7 @@ class TrainTrackerClientSpec extends PlaySpec with GuiceOneAppPerTest with Mocki
 
   "TrainTrackerClient" should {
     "correctly parse getVehicles response" in {
-      Server.withRouterFromComponents()(TestHelpers.mockCta) { implicit port =>
+      Server.withRouterFromComponents()(TestHelpers.mockCta()) { implicit port =>
         WsTestClient.withClient {
           client =>
             val trainTrackerClient = new TrainTrackerClient(client, ExecutionContext.global, app.configuration, inject[SyncCacheApi])

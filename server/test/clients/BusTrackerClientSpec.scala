@@ -30,7 +30,7 @@ class BusTrackerClientSpec extends PlaySpec with GuiceOneAppPerTest with Mockito
 
   "BusTrackerClient" should {
     "correctly parse getVehicles response" in {
-      Server.withRouterFromComponents()(TestHelpers.mockCta) { implicit port =>
+      Server.withRouterFromComponents()(TestHelpers.mockCta()) { implicit port =>
         WsTestClient.withClient {
           client =>
             val busTrackerClient = new BusTrackerClient(client, ExecutionContext.global, app.configuration, inject[SyncCacheApi])

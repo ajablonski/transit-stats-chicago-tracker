@@ -18,6 +18,7 @@ import java.nio.file.Files
 import scala.concurrent.duration._
 import scala.concurrent.{Await, ExecutionContext, Future}
 import scala.jdk.CollectionConverters._
+import scala.reflect.io.Directory
 
 class GtfsClientTest extends AnyWordSpec with Matchers with MockitoSugar {
 
@@ -34,7 +35,7 @@ class GtfsClientTest extends AnyWordSpec with Matchers with MockitoSugar {
   "getRoutes" should {
     "return the routes provided in the associated zip file" in {
 
-      Server.withRouterFromComponents()(TestHelpers.mockCta){ implicit port =>
+      Server.withRouterFromComponents()(TestHelpers.mockCta()){ implicit port =>
         WsTestClient.withClient { wsClient =>
           val client = new GtfsClient(wsClient, ExecutionContext.global, Configuration(
             "app.cta.gtfsUrl" -> ""
@@ -42,6 +43,23 @@ class GtfsClientTest extends AnyWordSpec with Matchers with MockitoSugar {
           val routes = Await.result(client.getRoutes(), 1.minute)
           routes should have size 133
           routes.find(_.routeId == "22") shouldBe Some(Route("22", "Clark", BusRouteType, "565a5c", "ffffff"))
+        }
+      }
+    }
+
+    "not deadlock given multiple requests" in {
+      Server.withRouterFromComponents()(TestHelpers.mockCta(1.seconds)){ implicit port =>
+        WsTestClient.withClient { wsClient =>
+          val tempDirectory = Files.createTempDirectory(this.getClass.getName)
+          val client = new GtfsClient(wsClient, ExecutionContext.global, Configuration(
+            "app.cta.gtfsUrl" -> "",
+            "app.filepath" -> tempDirectory.toAbsolutePath.toString
+          ))
+          val routes1 = client.getRoutes()
+          val routes2 = client.getRoutes()
+          Await.result(routes2, 1.minute) should have size 133
+          Await.result(routes1, 1.minute) should have size 133
+          new Directory(tempDirectory.toFile).deleteRecursively()
         }
       }
     }

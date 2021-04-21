@@ -60,7 +60,7 @@ class TrainControllerSpec extends PlaySpec with GuiceOneAppPerTest with Injectin
     }
 
     "route correctly" in {
-      Server.withRouterFromComponents()(TestHelpers.mockCta) { port =>
+      Server.withRouterFromComponents()(TestHelpers.mockCta()) { port =>
         val app = new GuiceApplicationBuilder()
           .configure("app" -> Map(
             "ctaTrainApi" -> Map(

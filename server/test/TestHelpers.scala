@@ -6,6 +6,7 @@ import play.api.routing.sird._
 
 import java.io.File
 import java.nio.file.Files
+import scala.concurrent.duration.{Duration, DurationInt}
 import scala.jdk.CollectionConverters._
 
 package object TestHelpers {
@@ -80,7 +81,7 @@ package object TestHelpers {
       |  }
       |}""".stripMargin
 
-  def mockCta(components: BuiltInComponents): PartialFunction[RequestHeader, Handler] = {
+  def mockCta(waitTime: Duration = 0.seconds)(components: BuiltInComponents): PartialFunction[RequestHeader, Handler] = {
     import components.{defaultActionBuilder => Action}
     import play.api.mvc.Results._
     {
@@ -91,6 +92,7 @@ package object TestHelpers {
         Ok(mockTrainVehiclesJSON).as(ContentTypes.JSON)
       }
       case GET(p"/downloads/sch_data/google_transit.zip") => Action {
+        Thread.sleep(waitTime.toMillis)
         Ok.sendFile(gtfsZipFile)(components.executionContext, components.fileMimeTypes)
       }
     }

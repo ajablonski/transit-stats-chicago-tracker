@@ -32,7 +32,7 @@ class RouteControllerSpec extends PlaySpec with MockitoSugar {
 
     "wiring up the app" should {
       "route correctly" in {
-        Server.withRouterFromComponents()(TestHelpers.mockCta) { port =>
+        Server.withRouterFromComponents()(TestHelpers.mockCta()) { port =>
           val app = new GuiceApplicationBuilder()
             .configure("app" -> Map(
               "ctaBusApi" -> Map(
