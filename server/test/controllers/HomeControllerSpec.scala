@@ -1,9 +1,12 @@
 package controllers
 
+import clients.GtfsClient
 import org.scalatest.TestData
+import org.scalatestplus.mockito.MockitoSugar.mock
 import org.scalatestplus.play._
 import org.scalatestplus.play.guice._
 import play.api.Application
+import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.Helpers._
 import play.api.test._
@@ -24,6 +27,7 @@ class HomeControllerSpec extends PlaySpec with GuiceOneAppPerTest with Injecting
         "app.ctaBusApi.cacheTimeInSeconds" -> "1",
         "app.ctaTrainApi.cacheTimeInSeconds" -> "1"
       ))
+      .bindings(bind[GtfsClient].to(mock[GtfsClient]))
       .build()
 
   "HomeController GET" should {
