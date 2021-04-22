@@ -19,7 +19,7 @@ object SourceMapCleanup {
       val newSourceMap = sourceMap.copy(sources = sourceMap.sources.map { source =>
         source
           .replaceAll(
-            raw"(?:\.\./)+home/travis/build/playframework/play-json/",
+            raw"(?:\.\./)+travis/build/playframework/play-json/",
             "https://raw.githubusercontent.com/playframework/play-json/2.9.2/")
           .replaceAll(
             raw"(?:\.\./)+localhome/doeraene/projects/reflect/",
