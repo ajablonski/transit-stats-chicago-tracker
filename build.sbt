@@ -21,7 +21,7 @@ lazy val server = (project in file("server"))
       "net.lingala.zip4j" % "zip4j" % "2.7.0",
       "com.github.tototoshi" %% "scala-csv" % "1.3.7",
       "org.scalatestplus.play" %% "scalatestplus-play" % "5.1.0" % Test,
-      "org.scalatestplus" %% "mockito-3-4" % "3.2.5.0" % Test
+      "org.scalatestplus" %% "mockito-3-4" % "3.2.8.0" % Test
     ),
     npmAssets ++= NpmAssets.ofProject(client) { nodeModules =>
       (nodeModules / "leaflet") ** ("*.css" || "*.png")
@@ -38,8 +38,7 @@ lazy val client = (project in file("client"))
     scalaJSUseMainModuleInitializer := true,
     libraryDependencies ++= Seq(
       "org.scala-js" %%% "scalajs-dom" % "1.1.0",
-      "com.lihaoyi" %%% "upickle" % "1.2.3",
-      "io.github.cquiroz" %%% "scala-java-time" % "2.2.0",
+      "io.github.cquiroz" %%% "scala-java-time" % "2.2.2",
       "com.raquo" %%% "laminar" % "0.12.2",
       "com.raquo" %%% "airstream" % "0.12.2"
     ),
@@ -71,12 +70,12 @@ lazy val shared = crossProject(JSPlatform, JVMPlatform)
   .settings(
     libraryDependencies ++= Seq(
       "com.typesafe.play" %%% "play-json" % "2.9.2",
-      "org.scalatest" %%% "scalatest" % "3.2.5" % "test"
+      "org.scalatest" %%% "scalatest" % "3.2.8" % "test"
     )
   )
   .jsSettings(
     libraryDependencies ++= Seq(
-      "io.github.cquiroz" %%% "scala-java-time" % "2.2.0"
+      "io.github.cquiroz" %%% "scala-java-time" % "2.2.2"
     )
   )
   .jsConfigure(_.enablePlugins(ScalaJSBundlerPlugin))
