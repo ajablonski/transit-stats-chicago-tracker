@@ -15,9 +15,9 @@ object Main {
           div(
             idAttr := "app",
             h1("Hello world"),
-            new RouteDropDown(StateStreams.routeListStream, StateStreams.currentRouteStream).render()
+            RouteDropDown(StateStreams.routeListStream, StateStreams.currentRouteStream)
           ),
-          new LeafletMapManager(StateStreams.routeListStream, StateStreams.currentRouteStream.signal).render()
+          LeafletMapManager(StateStreams.routeListStream, StateStreams.currentRouteStream.signal)
         ))
     }(unsafeWindowOwner)
   }

@@ -13,7 +13,14 @@ import scala.scalajs.js
 import scala.scalajs.js.UndefOr
 
 
-class LeafletMapManager(routeListStream: EventStream[List[Route]], routeStream: Signal[String]) {
+object LeafletMapManager {
+  def apply(routeListStream: EventStream[List[Route]], routeStream: Signal[String]): ReactiveElement[html.Div] = {
+    new LeafletMapManager(routeListStream, routeStream).render()
+  }
+}
+
+
+private class LeafletMapManager(routeListStream: EventStream[List[Route]], routeStream: Signal[String]) {
 
   private val mapId = "mapid"
   private var realtimeIcons: Option[Realtime] = None
@@ -26,7 +33,7 @@ class LeafletMapManager(routeListStream: EventStream[List[Route]], routeStream: 
     .startWith(Map())
   private val hasReBounded = Var(false)
 
-  def render(): ReactiveElement[html.Div] = {
+  def render(l: String = "HI"): ReactiveElement[html.Div] = {
     div(
       idAttr := mapId,
 

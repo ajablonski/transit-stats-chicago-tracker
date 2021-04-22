@@ -7,8 +7,16 @@ import com.raquo.laminar.api.L._
 import com.raquo.laminar.nodes.ReactiveHtmlElement
 import org.scalajs.dom.{html, window}
 
-class RouteDropDown(routesEventStream: EventStream[List[Route]],
-                    routeStream: Var[String]) {
+object RouteDropDown {
+  def apply(routesEventStream: EventStream[List[Route]],
+            routeStream: Var[String]): ReactiveHtmlElement[html.Select] = {
+    new RouteDropDown(routesEventStream, routeStream).render()
+  }
+}
+
+
+private class RouteDropDown(routesEventStream: EventStream[List[Route]],
+                            routeStream: Var[String]) {
   def render(): ReactiveHtmlElement[html.Select] = {
     select(
       idAttr := "routes",
