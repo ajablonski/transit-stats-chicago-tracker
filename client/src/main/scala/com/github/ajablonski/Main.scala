@@ -5,6 +5,7 @@ import com.github.ajablonski.components.LeafletMapManager
 import com.raquo.domtypes.generic.codecs.StringAsIsCodec
 import com.raquo.laminar.api.L._
 import org.scalajs.dom
+import org.scalajs.dom.window
 
 
 object Main {
@@ -22,7 +23,10 @@ object Main {
             controlled(
               value <-- routeStream.signal,
               onChange.mapToValue --> routeStream.writer
-            )
+            ),
+            onChange.mapToValue --> {
+              window.localStorage.setItem("route", _)
+            }
           )
         ),
         new LeafletMapManager(routeStream.signal).render()
