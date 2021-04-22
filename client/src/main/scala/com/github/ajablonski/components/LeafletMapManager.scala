@@ -1,7 +1,8 @@
 package com.github.ajablonski.components
 
 import com.github.ajablonski.facades._
-import com.github.ajablonski.{Streams, facades}
+import com.github.ajablonski.shared.model.Route
+import com.github.ajablonski.{StateStreams, facades}
 import com.raquo.laminar.api.L._
 import com.raquo.laminar.nodes.ReactiveElement
 import org.scalajs.dom.html
@@ -12,12 +13,11 @@ import scala.scalajs.js
 import scala.scalajs.js.UndefOr
 
 
-class LeafletMapManager(routeStream: Signal[String]) {
+class LeafletMapManager(routeListStream: EventStream[List[Route]], routeStream: Signal[String]) {
 
   private val mapId = "mapid"
   private var realtimeIcons: Option[Realtime] = None
-  private val routeRequestsSignal = Streams
-    .routesEventStream()
+  private val routeRequestsSignal = routeListStream
     .map {
       _.map { route =>
         route.routeId -> MapRouteConfig.fromRoute(route)

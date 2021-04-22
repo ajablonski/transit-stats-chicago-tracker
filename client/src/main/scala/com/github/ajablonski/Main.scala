@@ -1,52 +1,24 @@
 package com.github.ajablonski
 
-import com.github.ajablonski.Streams.routeStream
-import com.github.ajablonski.components.LeafletMapManager
-import com.raquo.domtypes.generic.codecs.StringAsIsCodec
+import com.github.ajablonski.components.{LeafletMapManager, RouteDropDown}
 import com.raquo.laminar.api.L._
 import org.scalajs.dom
-import org.scalajs.dom.window
 
 
 object Main {
 
   def main(args: Array[String]): Unit = {
     documentEvents.onDomContentLoaded.foreach { _ =>
-      val appContainer = dom.document.querySelector("body")
-      val appElement = div(
+      render(
+        dom.document.querySelector("body"),
         div(
-          idAttr := "app",
-          h1("Hello world"),
-          select(
-            idAttr := "routes",
-            children <-- routesEventStream,
-            controlled(
-              value <-- routeStream.signal,
-              onChange.mapToValue --> routeStream.writer
-            ),
-            onChange.mapToValue --> {
-              window.localStorage.setItem("route", _)
-            }
-          )
-        ),
-        new LeafletMapManager(routeStream.signal).render()
-      )
-      render(appContainer, appElement)
+          div(
+            idAttr := "app",
+            h1("Hello world"),
+            new RouteDropDown(StateStreams.routeListStream, StateStreams.currentRouteStream).render()
+          ),
+          new LeafletMapManager(StateStreams.routeListStream, StateStreams.currentRouteStream.signal).render()
+        ))
     }(unsafeWindowOwner)
-  }
-
-  private val routesEventStream = Streams.routesEventStream().map {
-    _.map { route =>
-      val opt = option(
-        customHtmlAttr("label", StringAsIsCodec) := f"${route.routeId}: ${route.name}",
-        value := route.routeId,
-        f"${route.routeId}: ${route.name}"
-      )
-      if (route.routeId == routeStream.now()) {
-        opt.amend(selected := true)
-      } else {
-        opt
-      }
-    }
   }
 }
