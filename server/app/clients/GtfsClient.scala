@@ -22,7 +22,7 @@ class GtfsClient @Inject()(ws: WSClient, implicit private val ec: ExecutionConte
     .getOrElse(Paths.get("tmp", "gtfs"))
     .toAbsolutePath
   private var hasUnzipped = false
-  Await.ready(fetchGtfsFile(), 30.seconds)
+  Await.ready(fetchGtfsFile(), 1.minute)
 
   def getRoutes(): Future[List[Route]] = {
     getFeedFile("routes.txt")
