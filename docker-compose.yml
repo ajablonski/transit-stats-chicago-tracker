@@ -9,6 +9,8 @@ services:
       - app_bus_tracker_api_key
       - app_train_tracker_api_key
       - app_secret
+    environment:
+      - HOSTS=${HOSTS}
 
 secrets:
   app_bus_tracker_api_key:

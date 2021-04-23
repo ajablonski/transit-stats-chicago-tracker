@@ -7,4 +7,4 @@ cp ./server/target/universal/server-0.1.0-SNAPSHOT.zip docker/transit-stats-chic
 
 docker build docker/ -t local/transit-stats-chicago:latest
 
-docker compose up
+docker compose up --force-recreate
