@@ -1,7 +1,8 @@
+import sbt.Keys.scalacOptions
 import sbt.TaskKey
 import scalajsbundler.sbtplugin.WebScalaJSBundlerPlugin.autoImport.NpmAssets
 
-name := """ct-delay"""
+name := """transit-stats-chicago"""
 version := "1.0-SNAPSHOT"
 ThisBuild / scalaVersion := "2.13.5"
 
@@ -25,9 +26,28 @@ lazy val server = (project in file("server"))
     ),
     npmAssets ++= NpmAssets.ofProject(client) { nodeModules =>
       (nodeModules / "leaflet") ** ("*.css" || "*.png")
-    }.value
+    }.value,
+    scalacOptions ++= Seq("--target:11"),
+    javacOptions ++= Seq("--release", "11"),
+    maintainer := "Alex Jablonski @ajablonski",
+    packageSummary := "Transit Stats Chicago",
+    packageDescription := "Web app that displays trackers and statistics about transit in Chicago",
+    packageName := "transit-stats-chicago-server",
+    name := "transit-stats-chicago-server",
+    bashScriptDefines +=
+      """
+         |export APP_CTA_BUS_API_KEY=$(cat "/run/secrets/app_bus_tracker_api_key")
+         |export APP_CTA_TRAIN_API_KEY=$(cat "/run/secrets/app_train_tracker_api_key")
+         |export APP_SECRET=$(cat "/run/secrets/app_secret")
+         |
+         |HOSTS_ARR=(localhost $HOSTS)
+         |for i in "${!HOSTS_ARR[@]}" ; do
+         |    addJava "-Dplay.filters.hosts.allowed.$i=${HOSTS_ARR[$i]}"
+         |done
+         |""".stripMargin,
+
   )
-  .enablePlugins(PlayScala, WebScalaJSBundlerPlugin)
+  .enablePlugins(PlayScala, WebScalaJSBundlerPlugin, DebianPlugin, SystemdPlugin)
   .dependsOn(sharedJvm)
 
 val sourceMapCleanup = TaskKey[Unit]("sourceMapCleanUp", "Fix up source map to exclude relative library paths")
@@ -35,6 +55,7 @@ val sourceMapCleanup = TaskKey[Unit]("sourceMapCleanUp", "Fix up source map to e
 lazy val client = (project in file("client"))
   .settings(commonSettings)
   .settings(
+    name := "transit-stats-chicago-client",
     scalaJSUseMainModuleInitializer := true,
     libraryDependencies ++= Seq(
       "org.scala-js" %%% "scalajs-dom" % "1.1.0",
@@ -71,7 +92,12 @@ lazy val shared = crossProject(JSPlatform, JVMPlatform)
     libraryDependencies ++= Seq(
       "com.typesafe.play" %%% "play-json" % "2.9.2",
       "org.scalatest" %%% "scalatest" % "3.2.8" % "test"
-    )
+    ),
+    name := "transit-stats-chicago-shared"
+  )
+  .jvmSettings(
+    scalacOptions ++= Seq("--target:11"),
+    javacOptions ++= Seq("--release", "11")
   )
   .jsSettings(
     libraryDependencies ++= Seq(

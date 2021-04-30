@@ -3,6 +3,10 @@
 # Requirements
 * SBT
 * Node
+* Java 11
+* For Debian packaging
+    * Fakeroot
+    * dpkg
 
 # Local development
 
