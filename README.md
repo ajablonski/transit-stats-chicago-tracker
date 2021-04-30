@@ -18,4 +18,6 @@
 
 `./run.sh` will package the application, create a Docker image, and deploy that image locally using the configuration in the docker-compose.yml file. You'll need to provide secrets specified in the `docker-compose.yml` file, as well as an .env file (https://docs.docker.com/compose/environment-variables/) for any additional hosts you would like to allow Play to respond to.
 
-## With Docker
+## On Debian
+
+Run `sbt debian:packageBin`, and install on a Debian machine using `apt`/`dpkg`. The startup script will look for the same files as the Docker distro for secrets. Environment variables can also be set in `/etc/transit-stats-chicago-server/extra_env`
