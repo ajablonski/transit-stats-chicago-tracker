@@ -89,4 +89,20 @@ class GtfsClientTest extends AnyWordSpec with Matchers with MockitoSugar {
       verifyNoMoreInteractions(mockResponse)
     }
   }
+
+  "getShapesForRoute" should {
+    "find all shapes used by a route" in {
+      Server.withRouterFromComponents()(TestHelpers.mockCta()){ implicit port =>
+        WsTestClient.withClient { wsClient =>
+          val client = new GtfsClient(wsClient, ExecutionContext.global, Configuration(
+            "app.cta.gtfsUrl" -> ""
+          ))
+          val shapes = Await.result(client.getShapesForRoute("22"), 1.minute)
+          shapes should have size 7
+          shapes.head.shapeId shouldBe "63805422"
+          shapes.head.path should have size 499
+        }
+      }
+    }
+  }
 }

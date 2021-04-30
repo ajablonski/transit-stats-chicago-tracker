@@ -1,6 +1,6 @@
 package com.github.ajablonski.shared.serialization
 
-import com.github.ajablonski.shared.model.{BusRouteType, Route, RouteType, TrainRouteType}
+import com.github.ajablonski.shared.model.{BusRouteType, Point, Route, RouteType, Shape, TrainRouteType}
 import play.api.libs.json.{JsError, JsObject, JsSuccess, Json, OFormat, OWrites, Reads}
 
 object RouteSerializers {
@@ -21,6 +21,9 @@ object RouteSerializers {
   })
 
   implicit val routeFormat: OFormat[Route] = Json.format[Route]
+
+  implicit val pointFormat: OFormat[Point] = Json.format[Point]
+  implicit val shapeFormat: OFormat[Shape] = Json.format[Shape]
 
 
 }

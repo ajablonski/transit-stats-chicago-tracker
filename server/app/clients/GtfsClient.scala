@@ -1,6 +1,6 @@
 package clients
 
-import com.github.ajablonski.shared.model.{Route, RouteType}
+import com.github.ajablonski.shared.model.{Point, Route, RouteType, Shape}
 import com.github.tototoshi.csv.CSVReader
 import net.lingala.zip4j.ZipFile
 import play.api.Configuration
@@ -38,6 +38,30 @@ class GtfsClient @Inject()(ws: WSClient, implicit private val ec: ExecutionConte
               textColor = line("route_text_color"))
           }
       }
+  }
+
+  def getShapesForRoute(routeId: String): Future[List[Shape]] = {
+    for (tripsFile <- getFeedFile("trips.txt");
+         shapesFile <- getFeedFile("shapes.txt")) yield {
+      val shapeIds = CSVReader.open(tripsFile)
+        .toStreamWithHeaders
+        .filter { line => line("route_id") == routeId }
+        .map { line => line("shape_id") }
+        .toSet
+      CSVReader.open(shapesFile)
+        .toStreamWithHeaders
+        .filter { line => shapeIds.contains(line("shape_id")) }
+        .groupBy { line => line("shape_id") }
+        .map { case (shapeId, pointStream) =>
+          val points = pointStream
+            .map { line =>
+              Point(line("shape_pt_lat").toDouble, line("shape_pt_lon").toDouble, line("shape_dist_traveled").toLong)
+            }
+            .toList
+          Shape(shapeId, points)
+        }
+        .toList
+    }
   }
 
   private def getFeedFile(fileName: String): Future[File] = {
