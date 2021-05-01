@@ -2,6 +2,7 @@ package com.github.ajablonski.facades
 
 import scala.scalajs.js
 import scala.scalajs.js.annotation.JSImport
+import scala.scalajs.js.{UndefOr, |}
 
 
 @JSImport("leaflet", JSImport.Namespace)
@@ -18,6 +19,8 @@ object Leaflet extends js.Object {
   def featureGroup(layers: Layer*): FeatureGroup = js.native
 
   def geoJSON(data: js.Array[js.Dynamic], config: js.Dictionary[js.Any]): GeoJSON = js.native
+
+  def polyline(latlngs: js.Array[Double] | js.Array[js.Array[Double]], config: UndefOr[js.Dictionary[js.Any]]): Polyline = js.native
 
   val GeoJSON: GeoJSON = js.native
 }
@@ -79,3 +82,7 @@ class LatLngBounds extends js.Object {}
 @JSImport("leaflet", "LatLng")
 @js.native
 class LatLng extends js.Object {}
+
+@JSImport("leaflet", "Polyline")
+@js.native
+class Polyline extends Layer {}
