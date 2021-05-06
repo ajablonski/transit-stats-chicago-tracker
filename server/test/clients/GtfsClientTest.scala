@@ -8,9 +8,11 @@ import org.mockito.Mockito.{RETURNS_DEEP_STUBS, verify, verifyNoMoreInteractions
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.mockito.MockitoSugar
+import org.scalatestplus.play.guice.GuiceOneAppPerTest
 import play.api.Configuration
+import play.api.cache.SyncCacheApi
 import play.api.libs.ws.{WSClient, WSResponse}
-import play.api.test.WsTestClient
+import play.api.test.{Injecting, WsTestClient}
 import play.core.server.Server
 
 import java.io.File
@@ -20,7 +22,7 @@ import scala.concurrent.{Await, ExecutionContext, Future}
 import scala.jdk.CollectionConverters._
 import scala.reflect.io.Directory
 
-class GtfsClientTest extends AnyWordSpec with Matchers with MockitoSugar {
+class GtfsClientTest extends AnyWordSpec with Matchers with MockitoSugar with GuiceOneAppPerTest with Injecting {
 
   private val zipFile: File = {
     val filesToZip = new File(Thread.currentThread().getContextClassLoader.getResource("test_gtfs").getPath).listFiles()
@@ -39,7 +41,7 @@ class GtfsClientTest extends AnyWordSpec with Matchers with MockitoSugar {
         WsTestClient.withClient { wsClient =>
           val client = new GtfsClient(wsClient, ExecutionContext.global, Configuration(
             "app.cta.gtfsUrl" -> ""
-          ))
+          ), inject[SyncCacheApi])
           val routes = Await.result(client.getRoutes(), 1.minute)
           routes should have size 133
           routes.find(_.routeId == "22") shouldBe Some(Route("22", "Clark", BusRouteType, "565a5c", "ffffff"))
@@ -54,7 +56,7 @@ class GtfsClientTest extends AnyWordSpec with Matchers with MockitoSugar {
           val client = new GtfsClient(wsClient, ExecutionContext.global, Configuration(
             "app.cta.gtfsUrl" -> "",
             "app.filepath" -> tempDirectory.toAbsolutePath.toString
-          ))
+          ), inject[SyncCacheApi])
           val routes1 = client.getRoutes()
           val routes2 = client.getRoutes()
           Await.result(routes2, 1.minute) should have size 133
@@ -76,7 +78,7 @@ class GtfsClientTest extends AnyWordSpec with Matchers with MockitoSugar {
       val client = new GtfsClient(wsClient, ExecutionContext.global, Configuration(
         "app.cta.gtfsUrl" -> "http://fakeurl.com",
         "app.filepath" -> Files.createTempDirectory("GtfsClientTest").toAbsolutePath.toString
-      ))
+      ), inject[SyncCacheApi])
 
       Await.result(client.getRoutes(), 1.minute)
 
@@ -96,7 +98,7 @@ class GtfsClientTest extends AnyWordSpec with Matchers with MockitoSugar {
         WsTestClient.withClient { wsClient =>
           val client = new GtfsClient(wsClient, ExecutionContext.global, Configuration(
             "app.cta.gtfsUrl" -> ""
-          ))
+          ), inject[SyncCacheApi])
           val shapes = Await.result(client.getShapesForRoute("22"), 1.minute)
           shapes should have size 7
           shapes.head.shapeId shouldBe "63805422"

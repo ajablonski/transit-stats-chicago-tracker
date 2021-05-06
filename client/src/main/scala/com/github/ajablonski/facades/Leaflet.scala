@@ -23,6 +23,8 @@ object Leaflet extends js.Object {
   def polyline(latlngs: js.Array[Double] | js.Array[js.Array[Double]], config: UndefOr[js.Dictionary[js.Any]]): Polyline = js.native
 
   val GeoJSON: GeoJSON = js.native
+
+  val LineUtil: LineUtil = js.native
 }
 
 @JSImport("leaflet", "Map")
@@ -86,3 +88,9 @@ class LatLng extends js.Object {}
 @JSImport("leaflet", "Polyline")
 @js.native
 class Polyline extends Layer {}
+
+@JSImport("leaflet", "LineUtil")
+@js.native
+class LineUtil extends js.Object {
+  def simplify(points: js.Array[js.Array[Double]], tolerance: js.UndefOr[Double]): js.Array[js.Array[Double]] = js.native
+}

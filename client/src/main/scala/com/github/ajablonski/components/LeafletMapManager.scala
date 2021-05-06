@@ -1,9 +1,9 @@
 package com.github.ajablonski.components
 
+import com.github.ajablonski.facades
 import com.github.ajablonski.facades._
 import com.github.ajablonski.shared.model.{Route, Shape}
 import com.github.ajablonski.shared.serialization.RouteSerializers
-import com.github.ajablonski.{StateStreams, facades}
 import com.raquo.airstream.web.AjaxEventStream
 import com.raquo.laminar.api.L._
 import com.raquo.laminar.nodes.ReactiveElement
@@ -27,7 +27,6 @@ private class LeafletMapManager(routeListStream: EventStream[List[Route]], route
   implicit val shapeReads: OFormat[Shape] = RouteSerializers.shapeFormat
 
   private val mapId = "mapid"
-  private var realtimeIcons: Option[Realtime] = None
   private val routeRequestsSignal = routeListStream
     .map {
       _.map { route =>
@@ -35,24 +34,24 @@ private class LeafletMapManager(routeListStream: EventStream[List[Route]], route
       }.toMap
     }
     .startWith(Map())
-  private val routePolylines = Var(List[Polyline]())
-  private val selectedRouteShapes: Signal[List[Shape]] = routeStream
-    .debugLogEvents()
+  private val selectedRoutePolyLines: Signal[List[Polyline]] = routeStream
     .flatMap { route =>
       AjaxEventStream
         .get(s"/routes/$route")
-        .completeEvents
         .map { xhr =>
           Json.parse(xhr.responseText)
             .as[List[Shape]]
+            .map(shape => Leaflet.polyline(
+              Leaflet.LineUtil.simplify(
+                js.Array(shape.path.map(point => js.Array(point.lat, point.lon)): _*),
+                js.undefined),
+              js.undefined))
         }
+        .startWith(List())
     }
-    .startWith(List())
-
-
-
+  private val loadedLines = Var(List[Polyline]())
   private val hasReBounded = Var(false)
-
+  private val realtimeIcons = Var(Option[Realtime](null))
 
 
   def render(): ReactiveElement[html.Div] = {
@@ -61,28 +60,26 @@ private class LeafletMapManager(routeListStream: EventStream[List[Route]], route
 
       onMountCallback(ctx => {
         val map = initMap()
-        selectedRouteShapes.addObserver(routePolylines.updater { (existingPolyLines, selectedRouteShapes: List[Shape]) =>
-          existingPolyLines.foreach(_.removeFrom(map))
 
-          val polyLines = selectedRouteShapes.map(shape => Leaflet.polyline(js.Array(shape.path.map(point => js.Array(point.lat, point.lon)): _*), js.undefined))
-
-          polyLines.foreach(_.addTo(map))
-
-          polyLines
-        })(ctx.owner)
-
-        routeStream
-          .debugLogLifecycle()
-          .debugLogEvents()
-          .combineWith(routeRequestsSignal)
-          .addObserver(Observer({ case (route, routeConfigs) =>
-            realtimeIcons.foreach(_.removeFrom(map))
-            hasReBounded.set(false)
-            routeConfigs
-              .get(route)
-              .foreach(routeConfig =>
-                realtimeIcons = Some(updateRealtimeRefresh(map, routeConfig))
-              )
+        selectedRoutePolyLines
+          .combineWith(routeRequestsSignal, routeStream)
+          .addObserver(Observer({ case (polyLines, routeConfigs, route) =>
+            Var.update(
+              loadedLines -> { currentValue: List[Polyline] =>
+                currentValue.foreach(_.removeFrom(map))
+                polyLines.foreach(_.addTo(map))
+                polyLines
+              },
+              realtimeIcons -> { currentValue: Option[Realtime] =>
+                currentValue.foreach(_.removeFrom(map))
+                routeConfigs
+                  .get(route)
+                  .map(routeConfig =>
+                    updateRealtimeRefresh(map, routeConfig)
+                  )
+              },
+              hasReBounded -> { _: Boolean => false }
+            )
           }))(ctx.owner)
       })
     )

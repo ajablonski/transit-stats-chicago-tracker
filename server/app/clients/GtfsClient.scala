@@ -4,6 +4,7 @@ import com.github.ajablonski.shared.model.{Point, Route, RouteType, Shape}
 import com.github.tototoshi.csv.CSVReader
 import net.lingala.zip4j.ZipFile
 import play.api.Configuration
+import play.api.cache.SyncCacheApi
 import play.api.libs.ws.WSClient
 
 import java.io.{File, FileNotFoundException}
@@ -13,7 +14,10 @@ import scala.concurrent.duration.DurationInt
 import scala.concurrent.{Await, ExecutionContext, Future}
 
 @Singleton
-class GtfsClient @Inject()(ws: WSClient, implicit private val ec: ExecutionContext, config: Configuration) {
+class GtfsClient @Inject()(ws: WSClient,
+                           implicit private val ec: ExecutionContext,
+                           config: Configuration,
+                           cache: SyncCacheApi) {
   private val baseUrl = config.get[String]("app.cta.gtfsUrl")
   private val gtfsPath = "downloads/sch_data/google_transit.zip"
   private val gtfsDirectory = config
@@ -41,26 +45,28 @@ class GtfsClient @Inject()(ws: WSClient, implicit private val ec: ExecutionConte
   }
 
   def getShapesForRoute(routeId: String): Future[List[Shape]] = {
-    for (tripsFile <- getFeedFile("trips.txt");
-         shapesFile <- getFeedFile("shapes.txt")) yield {
-      val shapeIds = CSVReader.open(tripsFile)
-        .toStreamWithHeaders
-        .filter { line => line("route_id") == routeId }
-        .map { line => line("shape_id") }
-        .toSet
-      CSVReader.open(shapesFile)
-        .toStreamWithHeaders
-        .filter { line => shapeIds.contains(line("shape_id")) }
-        .groupBy { line => line("shape_id") }
-        .map { case (shapeId, pointStream) =>
-          val points = pointStream
-            .map { line =>
-              Point(line("shape_pt_lat").toDouble, line("shape_pt_lon").toDouble, line("shape_dist_traveled").toLong)
-            }
-            .toList
-          Shape(shapeId, points)
-        }
-        .toList
+    cache.getOrElseUpdate(routeId) {
+      for (tripsFile <- getFeedFile("trips.txt");
+           shapesFile <- getFeedFile("shapes.txt")) yield {
+        val shapeIds = CSVReader.open(tripsFile)
+          .toStreamWithHeaders
+          .filter { line => line("route_id") == routeId }
+          .map { line => line("shape_id") }
+          .toSet
+        CSVReader.open(shapesFile)
+          .toStreamWithHeaders
+          .filter { line => shapeIds.contains(line("shape_id")) }
+          .groupBy { line => line("shape_id") }
+          .map { case (shapeId, pointStream) =>
+            val points = pointStream
+              .map { line =>
+                Point(line("shape_pt_lat").toDouble, line("shape_pt_lon").toDouble, line("shape_dist_traveled").toLong)
+              }
+              .toList
+            Shape(shapeId, points)
+          }
+          .toList
+      }
     }
   }
 
