@@ -4,7 +4,7 @@ import scalajsbundler.sbtplugin.WebScalaJSBundlerPlugin.autoImport.NpmAssets
 
 name := """transit-stats-chicago"""
 version := "1.0-SNAPSHOT"
-ThisBuild / scalaVersion := "2.13.5"
+ThisBuild / scalaVersion := "2.13.6"
 
 lazy val server = (project in file("server"))
   .settings(commonSettings)
