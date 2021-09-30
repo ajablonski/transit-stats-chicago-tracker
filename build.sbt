@@ -10,10 +10,10 @@ lazy val server = (project in file("server"))
   .settings(commonSettings)
   .settings(
     scalaJSProjects := Seq(client),
-    pipelineStages in Assets := Seq(scalaJSPipeline),
+    Assets / pipelineStages := Seq(scalaJSPipeline),
     pipelineStages := Seq(digest, gzip),
     // triggers scalaJSPipeline when using compile or continuous compilation
-    compile in Compile := ((compile in Compile) dependsOn scalaJSPipeline).value,
+    Compile / compile := ((Compile / compile) dependsOn scalaJSPipeline).value,
     libraryDependencies ++= Seq(
       "com.vmunier" %% "scalajs-scripts" % "1.1.4",
       guice,
@@ -63,16 +63,16 @@ lazy val client = (project in file("client"))
       "com.raquo" %%% "laminar" % "0.12.2",
       "com.raquo" %%% "airstream" % "0.12.2"
     ),
-    webpackConfigFile in fastOptJS := Some(baseDirectory.value / "webpack" / "dev.webpack.config.js"),
-    npmDependencies in Compile ++= Seq(
+    fastOptJS / webpackConfigFile := Some(baseDirectory.value / "webpack" / "dev.webpack.config.js"),
+    Compile / npmDependencies ++= Seq(
       "leaflet" -> "1.7.1",
       "leaflet-realtime" -> "2.2.0"
     ),
-    npmDevDependencies in Compile ++= Seq(
+    Compile / npmDevDependencies ++= Seq(
       "scalajs-friendly-source-map-loader" -> "0.1.5"
     ),
-    (Compile / fastOptJS / webpack) := (Compile / fastOptJS / webpack).dependsOn(sourceMapCleanup).value,
-    version in webpack := "4.46.0",
+    Compile / fastOptJS / webpack := (Compile / fastOptJS / webpack).dependsOn(sourceMapCleanup).value,
+    webpack / version := "4.46.0",
     sourceMapCleanup := {
       SourceMapCleanup.cleanup(
         (Compile / fastLinkJS / scalaJSLinkerOutputDirectory).value,
