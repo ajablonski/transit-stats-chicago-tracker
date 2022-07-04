@@ -11,3 +11,4 @@ target
 tmp
 docker/*.zip
 docker/secrets
+secrets
